@@ -1,4 +1,6 @@
 <?php
-require_once( 'inc.bootstrap.php' );
+require_once( '../inc.bootstrap.php' );
 
-Connect_SMS_Application::run( file_get_contents('php://input') );
+$json = file_get_contents('php://input');
+
+Connect_SMS_CenterRequestApplication::run( $json );
