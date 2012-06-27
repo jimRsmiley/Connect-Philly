@@ -1,16 +1,11 @@
 <?php
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
  * Description of SearchTerms
  *
  * @author JimS
  */
-class Application_Model_DbTable_SearchTerms {
+class Connect_GoogleFT_SearchTerms {
  
     protected static $_terms = array( 
         'wifi'      => "'Has Wifi Access' contains ignoring case 'yes'",

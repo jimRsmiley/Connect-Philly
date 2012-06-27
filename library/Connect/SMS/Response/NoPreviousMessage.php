@@ -1,7 +1,9 @@
 <?php
 
 /**
- * Description of NoPreviousMessage
+ * The message to send back to the user when they've sent a probably next
+ * center request consisting of all digits, but they haven't previously texted
+ * a valid address.
  *
  * @author Jim Smiley twitter:@jimRsmiley
  */

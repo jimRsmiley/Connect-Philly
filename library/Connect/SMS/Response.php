@@ -9,7 +9,7 @@ class Connect_SMS_Response {
     
     protected $_centerRequest;
     
-    public function _construct( $centerRequest ) {
+    public function _construct( $centerRequest = null ) {
         $this->_centerRequest = $centerRequest;
     }
     

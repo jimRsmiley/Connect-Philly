@@ -4,7 +4,7 @@
  *
  * @author JimS
  */
-class Connect_SMS_PastMessageDB {
+class Connect_SMS_PastMessageFile {
     
     protected static $_file = "/../dat/past-successful-geocoded-messages.txt";
     
@@ -65,12 +65,12 @@ class Connect_SMS_PastMessageDB {
         foreach( $lines as $line ) {
             
             $elements = explode( '|', $line );
-            $timestamp = $elements[0];
+            //$timestamp = $elements[0];
             $possibleSenderAddress = $elements[1];
             $message = $elements[2];
             
             if( $possibleSenderAddress == $senderAddress ) {
-                Connect_FileLogger::debug( 'returning last message ' .$message );
+                Connect_FileLogger::debug( __CLASS__ . "->" . __FUNCTION__ . ': returning last message ' .$message );
                 return $message;
             }
         }
@@ -79,8 +79,25 @@ class Connect_SMS_PastMessageDB {
         return false;
     }
     
+    public static function shouldStoreRequest( Connect_CenterRequest $request, 
+            Connect_SMS_Response $response ) {
+        
+        // it wasn't a next center request and a center was found and returned
+        return( !($request instanceof Connect_SMS_Request_NextCenterRequest)
+                && $response instanceof Connect_SMS_Response_FoundCenter );
+    }
+    
     public static function getTimestamp() {
         return date( "Ymd g:i:s a", time() );
+    }
+    
+    public static function delete() {
+        
+        $file = $this->_file;
+        
+        if( file_exists( $file ) ) {
+            unlink( $file );
+        }
     }
 }
 

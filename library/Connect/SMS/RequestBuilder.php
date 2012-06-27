@@ -3,30 +3,55 @@
 /**
  * taking an inbound message, builds a proper center request
  *
+ * If a message contains only digits and is 5 digits long, the system will
+ * regard that as a zip code and try to geocode it.
+ * 
  * @author JimS
  */
 class Connect_SMS_RequestBuilder {
     
-    public static function create( Connect_SMS_InboundMessage $inboundMessage,
-            $testTime = null ) {
+    public static function create( 
+            Connect_SMS_InboundMessage $inboundMessage, $testTime = null ) {
 
-        $centerRequest = new Connect_SMS_Request();
-        $message = null;
+        $centerRequest = null;
         
         // trim the message content
         $inboundMessage->setMessage( trim( $inboundMessage->getMessage() ) );
         
-        // if the message only contains digits, try to pull back the last
-        // actuall address they sent
-        if( Connect_SMS_InboundMessageType::isNextAddressRequest( 
-                $inboundMessage->getMessage() ) ) 
+        $message = $inboundMessage->getMessage();
+
+        /*
+         * help message
+         */
+        if( self::isHelpRequest( $inboundMessage->getMessage() ) ) 
         {
+            return new Connect_SMS_Request_Help();
+        }
+        
+        /*
+         * a zip code or full address
+         */
+        else if( self::isZipCode( $inboundMessage->getMessage() ) 
+                || !self::isNextCenterRequest($message) ) 
+        {
+            $centerRequest = new Connect_CenterRequest();
+            $message = $inboundMessage->getMessage();
+        }
+        
+        // must be next center request
+        else
+        {
+            $centerRequest = new Connect_SMS_Request_NextCenterRequest();
+            
             $nextCenterNum = $inboundMessage->getMessage();
             $centerRequest->setNextCenterNum( $nextCenterNum );
             
             // find the address in the past message text file
-            $message = Connect_SMS_PastMessageDB::getLastEntry( 
+            $message = Connect_SMS_PastMessageFile::getLastEntry( 
                                         $inboundMessage->getSenderAddress() );
+            
+            Connect_FileLogger::info( __CLASS__ . 
+                    " nextCenterNum='$nextCenterNum' last valid message='$message'");
             
             // oops, there was no last address
             if( empty( $message ) ) {
@@ -35,14 +60,10 @@ class Connect_SMS_RequestBuilder {
                 throw new Connect_Exception( $response->getMessage() );
             }
         }
-        else 
-        {
-            $message = $inboundMessage->getMessage();
-        }
 
         $centerRequest->setTestIsOpen( self::testIsOpen($message) );
             
-        // if we're not testing now
+        // if we're not testing the time now
         if( empty($testTime) ) {
             $centerRequest->setTestTime( time() );
         }
@@ -54,30 +75,14 @@ class Connect_SMS_RequestBuilder {
         $searchTerms = self::getSearchTerms( $message );
         $address = self::scrubOfSearchTerms($message);
         
-        $position = self::getPosition( $address );
-        
-        if( empty($position) ) {
-            throw new Connect_Exception( 'System could not understand address \'' 
-                                            . $address . '\'');
-        }
-        
         // if we're here, we made it
-        $centerRequest->setAddress( $address );
-        $centerRequest->setLat( $position['lat'] );
-        $centerRequest->setLng( $position['lng'] );
-        $centerRequest->setSearchTerms( $searchTerms );
+        $centerRequest->setAddress1( $address );
+        $centerRequest->setSearchOptions( $searchTerms );
         
         return $centerRequest;
     }
 
-    /**
-     * given, address, attempts to geocode it
-     * @param string $address
-     * @return mixed an associative array with lat and lng as keys
-     */
-    protected static function getPosition( $address ) {
-        return Connect_PhillyGeocoder::geocode( $address );
-    }
+
     
     
     /**
@@ -86,7 +91,7 @@ class Connect_SMS_RequestBuilder {
      * @return array the array of terms that were matched
      */
     protected static function getSearchTerms( $message ) {
-        $searchTerms = Application_Model_DbTable_SearchTerms::getSearchTerms();
+        $searchTerms = Connect_GoogleFT_SearchTerms::getSearchTerms();
         $matchedTerms = array();
                 
         foreach( $searchTerms as $term ) {
@@ -104,7 +109,7 @@ class Connect_SMS_RequestBuilder {
      * @return string scrubbed message
      */
     protected static function scrubOfSearchTerms( $message ) {
-        $searchTerms = Application_Model_DbTable_SearchTerms::getSearchTerms();
+        $searchTerms = Connect_GoogleFT_SearchTerms::getSearchTerms();
                 
         foreach( $searchTerms as $term ) {
             $message = self::scrubMessage($message, $term);
@@ -137,6 +142,29 @@ class Connect_SMS_RequestBuilder {
             return true;
         }
         return false;
+    }
+    
+    public static function isHelpRequest( $message ) {
+        return( strtolower( $message ) == 'help' );
+    }
+    
+    /**
+     * checks whether a message is a zip code
+     * @param string $message
+     * @return boolean true if zip code, else false 
+     */
+    public static function isZipCode( $message ) {
+        
+        if( preg_match( '/^\d\d\d\d\d$/', $message ) ) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    public static function isNextCenterRequest( $message ) {
+        $result = preg_match( '/^(\d+)$/', $message, $matches );
+        return ( $result > 0 );
     }
 }
 ?>

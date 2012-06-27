@@ -39,8 +39,8 @@ class Connect_SMS_CallbackApplicaton extends Connect_SMS_Application {
             $logger->info( $loggerPrefix.print_r( $notification, true ) );
             
             /*
-             * @todo: uncomment if you actually want to start resending SMS
-             * messages
+             * @todo do something here if you actually want to start resending SMS messages
+             * 
             $notifyUrl = self::getNotifyUrl($_SERVER['SERVER_NAME'], ++$attemptNum);
             
             $senderAddress = $notification->getSenderAddress();

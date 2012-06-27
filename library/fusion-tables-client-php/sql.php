@@ -48,7 +48,7 @@ class SQLBuilder {
     $stringCols = "*";
     
     if($cols) {
-      $stringCols = "";
+      $stringCols = "ROWID, ";
       $length = count($cols);
       $count = 0;
       foreach($cols as $col) {
@@ -57,7 +57,7 @@ class SQLBuilder {
         $count++;
       }
     }
-    
+    //$stringCols = "ROWID, 'LOCATION TITLE'";
     if($condition) $select = "SELECT $stringCols FROM $table_id WHERE $condition";
     else $select = "SELECT $stringCols FROM $table_id";
     

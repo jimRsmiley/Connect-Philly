@@ -9,7 +9,7 @@ class Connect_SMS_Response_Help extends Connect_SMS_Response {
     
     public function getMessage() {
         
-        $searchTerms = Application_Model_DbTable_SearchTerms::getSearchTerms();
+        $searchTerms = Connect_GoogleFT_SearchTerms::getSearchTerms();
         $searchStr = implode( ', ', $searchTerms );
         $msg = 'Text address to find closest Internet access. '
                 .'End message with terms '

@@ -5,23 +5,31 @@
  *
  * @author JimS
  */
-class Connect_SMS_Request {
+class Connect_CenterRequest {
     
-    protected $_address;
-    protected $_searchTerms;
-    protected $_lat;
-    protected $_lng;
-    protected $_nextCenterNum = null;
+    protected $_address1;
+    protected $_searchOptions;
+    protected $_latitude;
+    protected $_longitude;
+    
+    // should we test for open centers
     protected $_testIsOpen;
-    protected $_testTime;
     
-    protected $_matchedCenter;
-    
+    // the time to test open centers against
+    protected $_testTime; 
+        
     public function __construct(array $options = null)
     {
         if (is_array($options)) {
             $this->setOptions($options);
         }
+        
+        if( is_array($this->_searchOptions) &&
+                in_array( 'open', $this->_searchOptions ) ) {
+            $this->_testIsOpen = true;
+        }
+        
+        $this->_testTime = time();
     }
     
     public function __set($name, $value)
@@ -42,44 +50,48 @@ class Connect_SMS_Request {
         return $this->$method();
     }
     
-    public function getAddress() {
-        return $this->_address;
+    public function setOptions(array $options)
+    {
+        $methods = get_class_methods($this);
+        foreach ($options as $key => $value) {
+            $method = 'set' . ucfirst($key);
+            if (in_array($method, $methods)) {
+                $this->$method($value);
+            }
+        }
+        return $this;
+    }
+    
+    public function getAddress1() {
+        return $this->_address1;
     }
 
-    public function setAddress($address) {
-        $this->_address = $address;
+    public function setAddress1($address) {
+        $this->_address1 = $address;
     }
     
-    public function getSearchTerms() {
-        return $this->_searchTerms;
+    public function getSearchOptions() {
+        return $this->_searchOptions;
     }
     
-    public function setSearchTerms($searchTerms) {
-        $this->_searchTerms = $searchTerms;
+    public function setSearchOptions($searchOptions) {
+        $this->_searchOptions = $searchOptions;
     }
     
-    public function getLat() {
-        return $this->_lat;
+    public function getLatitude() {
+        return $this->_latitude;
     }
     
-    public function setLat($lat) {
-        $this->_lat = $lat;
+    public function setLatitude($lat) {
+        $this->_latitude = $lat;
     }
     
-    public function getLng() {
-        return $this->_lng;
+    public function getLongitude() {
+        return $this->_longitude;
     }
     
-    public function setLng($lng) {
-        $this->_lng = $lng;
-    }
-    
-    public function getNextCenterNum() {
-        return $this->_nextCenterNum;
-    }
-    
-    public function setNextCenterNum($nextCenterNum) {
-        $this->_nextCenterNum = $nextCenterNum;
+    public function setLongitude($lng) {
+        $this->_longitude = $lng;
     }
     
     public function getTestIsOpen() {

@@ -1,7 +1,7 @@
 <?php
 /**
  * Description of MessageBuilder
- *
+ * @todo decide if this class should exist
  * @author jsmiley
  */
 class Connect_Mail_MessageBuilder {
@@ -17,7 +17,7 @@ class Connect_Mail_MessageBuilder {
                 . "content length: " . strlen($originalMessage);
         
         $options = array();
-        $options['subject'] = 'Resending SMS to ' . $senderAddress;
+        $options['subject'] = 'SMS Send Faulure';
         $options['message'] = $msg;
         $options['toAddress'] = self::getSystemToAddresses();
         

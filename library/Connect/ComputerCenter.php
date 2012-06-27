@@ -2,7 +2,9 @@
 
 class Connect_ComputerCenter
 {
-    protected $_id;
+    protected $_id; // for the public id in the table
+    protected $_rowid;  // for the one that google fusion hiddenly assigns
+    
     protected $_locationTitle;
     
     protected $_address1;
@@ -117,8 +119,8 @@ class Connect_ComputerCenter
     
     public function getOptions() {
         
-        $variables = array_keys( get_class_vars( get_class($this) ) );
-
+        //$variables = array_keys( get_class_vars( get_class(new Connect_ComputerCenter) ) );
+        $variables = array_keys( get_class_vars( __CLASS__ ) );
         $options = array();
         foreach( $variables as $variableName ) {
             
@@ -126,7 +128,10 @@ class Connect_ComputerCenter
             $variableName = substr( $variableName, 1 );
             
             $method = 'get' . ucfirst( $variableName );
-            $options[$variableName] = $this->$method();
+            
+            if( method_exists( $this, $method ) ) {
+                $options[$variableName] = $this->$method();
+            }
         }
         
         return $options;
@@ -140,6 +145,14 @@ class Connect_ComputerCenter
             $this->_id = $id;
     }
 
+    public function setRowid($rowid) {
+        $this->_rowid = $rowid;
+    }
+    
+    public function getRowid() {
+        return $this->_rowid;
+    }
+    
     public function getLocationTitle(){
             return $this->_locationTitle;
     }
@@ -412,11 +425,11 @@ class Connect_ComputerCenter
     }
     
     public function getSaturdayHoursClose(){
-        return $this->saturdayHoursClose;
+        return $this->_saturdayHoursClose;
     }
 
     public function setSaturdayHoursClose($saturdayHoursClose){
-        $this->saturdayHoursClose = $saturdayHoursClose;
+        $this->_saturdayHoursClose = $saturdayHoursClose;
     }
 
     public function getSundayHoursDescription(){
@@ -587,8 +600,10 @@ class Connect_ComputerCenter
      * @return string yes for open, no for closed, unknown if unknown
      */
     public function getOpenStatus( $timeStamp ) {
-        $logPrefix = __CLASS__ . "->". __FUNCTION__ . ": ";
         
+        if( empty( $timeStamp ) ) {
+            throw new InvalidArgumentException( 'timeStamp may not be null' );
+        }
         // get the day Monday,Tuesday.....
         $testDay = date( 'l', $timeStamp );
         
@@ -600,10 +615,7 @@ class Connect_ComputerCenter
         $openTime = $times[0];
         $closeTime = $times[1];
         
-        Connect_FileLogger::debug( $logPrefix . "testing day='$testDay' with time='$testTime',"
-                ."open time is $openTime and close time is $closeTime" );
-        
-        $retVal;
+        $retVal = null;
         
         if( empty($openTime) || empty($closeTime) ) {
             $retVal = Connect_ComputerCenter_OpenStatus::$UNKNOWN;
@@ -690,5 +702,12 @@ class Connect_ComputerCenter
         );
         
         return $array;
+    }
+    
+    /**
+     *returns an associative array 
+     */
+    public function toArray() {
+        return $this->getOptions();
     }
 }

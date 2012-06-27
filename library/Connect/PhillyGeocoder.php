@@ -27,7 +27,8 @@ class Connect_PhillyGeocoder extends Connect_GISGeocoder {
                 
         $position = parent::geocode( $address );
         
-        // reset the result if it returns the general philly location
+        // reset the result if it returns the general philly location,
+        // we want to return null
         if( $position['lat'] == self::$PHL_LAT 
                 && $position['lng'] == self::$PHL_LNG ) {
             
@@ -35,6 +36,10 @@ class Connect_PhillyGeocoder extends Connect_GISGeocoder {
                     . 'returned general Philadelphia coordinates' );
                     
             $position = null;
+        }
+        else {
+            $position['latitude'] = $position['lat'];
+            $position['longitude'] = $position['lng'];
         }
         
         return $position;

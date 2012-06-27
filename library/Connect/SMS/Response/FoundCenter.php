@@ -10,8 +10,13 @@ class Connect_SMS_Response_FoundCenter extends Connect_SMS_Response {
     protected $_distance;
     protected $_foundCenter;
     
-    public function __construct( Connect_SMS_Request $request,
-     Connect_ComputerCenter $foundCenter ) {
+    public function __construct( Connect_CenterRequest $request,
+     Connect_ComputerCenter $foundCenter ) 
+    {
+        if( empty( $foundCenter ) ) {
+            throw new Connect_Exception('foundCenter cannot be empty');
+        }
+        
         $this->_centerRequest = $request;
         $this->_foundCenter = $foundCenter;
     }
@@ -31,37 +36,39 @@ class Connect_SMS_Response_FoundCenter extends Connect_SMS_Response {
     public function getMessage() {
         
         $center = $this->getFoundCenter();
-        $distance = $this->getDistance();
 
-        $nextCenterNum = (int)$this->getCenterRequest()->getNextCenterNum();
+        $nextCenterNum = 0;
+        if( $this->getCenterRequest() instanceof Connect_SMS_Request_NextCenterRequest ) {
+            $nextCenterNum = (int)$this->getCenterRequest()->getNextCenterNum();
+        }
         
         $wifi = $center->getHasWifiAccess();
         $phone = $center->getCenterPhoneNumber();
-        $disabledAccess = $center->getHasDisabledAccess();
         $testTime = $this->getCenterRequest()->getTestTime();
         $openStatus = $center->getOpenStatus( $testTime );
-        
+        $isOpenStr = self::getOpenStatusString($openStatus);
         $wifi           = ( empty($wifi) ? '' : 'Wifi' );
         $phone          = ( empty($phone) ? '' : ' Tel.: '.$phone );
-        $disableAccess  = ( empty($disabledAccess) ? '' : ' Disabled Access: yes' );
-        
-        $isOpenStr = '';
-        if( $openStatus == Connect_ComputerCenter_OpenStatus::$OPEN ) {
-            $isOpenStr = ' Open Now';
-        }
-        else if($openStatus == Connect_ComputerCenter_OpenStatus::$CLOSED ) {
-            $isOpenStr = ' Closed Now';
-        }
         
         $msg =  $center->getLocationTitle() . "\n"
                 . $center->getAddress1() . "\n"
-                //. "$distance miles away" . "\n"
                 . $wifi 
-                //. $disableAccess 
                 . $phone
                 . $isOpenStr;
         
         return $msg."\n".self::successMessageSuffix(($nextCenterNum+1));
+    }
+    
+    public static function getOpenStatusString( $openStatus ) {
+        if( $openStatus == Connect_ComputerCenter_OpenStatus::$OPEN ) {
+            return ' Open Now';
+        }
+        else if($openStatus == Connect_ComputerCenter_OpenStatus::$CLOSED ) {
+            return ' Closed Now';
+        }
+        else {
+            return '';
+        }
     }
     
     public static function successMessageSuffix($nextNum) {
