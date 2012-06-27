@@ -4,7 +4,7 @@
  */
 class Application_Model_CenterDirectoryMapper
 {
-    protected $_dbTableClassName = 'Application_Model_DbTable_GoogleFusionTable';
+    protected $_dbTableClassName = 'Connect_GoogleFT_GoogleFusionTable';
     
     protected $_dbTable;
     protected $logger;

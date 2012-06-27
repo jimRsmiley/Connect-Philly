@@ -32,8 +32,8 @@ function onLoad() {
 	// if the browser can navigate
 	if (canBrowserGeolocate()) {
 		// set the value of the the search box to use current location
-		//$('#searchaddress').val('Use Current Location');
-		$('#searchaddress').val('1128 Foulkrod St');
+		$('#searchaddress').val('Use Current Location');
+		//$('#searchaddress').val('5th and market');
 		// and make the text italics
 		$('#searchaddress').css('font-style',"italic");
 	}
