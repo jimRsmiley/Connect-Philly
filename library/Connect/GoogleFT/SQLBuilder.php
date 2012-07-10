@@ -1,6 +1,6 @@
 <?php
 
-class SQLBuilder {
+class Connect_GoogleFT_SQLBuilder {
   //Builds SQL statements. Helper class.
 
   public static function showTables() {

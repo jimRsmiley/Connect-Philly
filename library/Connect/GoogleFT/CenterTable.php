@@ -1,7 +1,6 @@
 <?php
 
 require_once('fusion-tables-client-php/clientlogin.php');
-require_once('fusion-tables-client-php/sql.php');
 require_once('fusion-tables-client-php/file.php');
 
 // @todo figure out how to get 3rd party apps in the zend autoloader
@@ -35,13 +34,12 @@ class Connect_GoogleFT_CenterTable {
     }
 
     /**
-     * tries to insert data into the google fusion table, returns false on
-     * failure.
+     * insert data into the google fusion table
      * 
      * It adds the current timestamp to the computer center when entered.
      *
      * @param mixed $data - an associative array
-     * @return boolean
+     * @return boolean false on failure
      */
     public function insert($data) {
 
@@ -50,21 +48,23 @@ class Connect_GoogleFT_CenterTable {
         $data['Timestamp'] = $timestamp;
 
         if (!$data) {
-            Connect_FileLogger::err(self::logPrefixString(__FUNCTION__) . ': data is null');
+            Connect_FileLogger::err(
+                        self::logPrefixString(__FUNCTION__) . ': data is null'
+                    );
             return false;
         }
 
         $ftclient = $this->_ftclient;
 
         $result = $ftclient->query(
-                SQLBuilder::insert($this->_tableId, $data)
+                Connect_GoogleFT_SQLBuilder::insert($this->_tableId, $data)
         );
 
         if (preg_match('/Error 400/', $result)) {
             Connect_FileLogger::err(self::logPrefixString(__FUNCTION__) . ': error 400');
 
             Connect_FileLogger::err(self::logPrefixString(__FUNCTION__) . ': sql => ' .
-                    SQLBuilder::insert($this->_tableId, $data));
+                    Connect_GoogleFT_SQLBuilder::insert($this->_tableId, $data));
 
             Connect_FileLogger::err(self::logPrefixString(__FUNCTION__) . Zend_Debug::dump($data, false));
 
@@ -90,7 +90,7 @@ class Connect_GoogleFT_CenterTable {
         $ftclient = $this->_ftclient;
 
         $result =
-                $ftclient->query(SQLBuilder::describeTable($this->_tableId));
+                $ftclient->query(Connect_GoogleFT_SQLBuilder::describeTable($this->_tableId));
 
         return $this->toAssocArray($result);
     }
@@ -110,6 +110,25 @@ class Connect_GoogleFT_CenterTable {
         return $names;
     }
     
+    public function getCenterByRowid( $rowid ) {
+        
+        if( empty( $rowid ) ) {
+            throw new InvalidArgumentException('rowid may not be null' );
+        }
+        
+        
+        $cols = null;
+        $conditions = "ROWID = '$rowid'";
+        $sql = Connect_GoogleFT_SQLBuilder
+                            ::select($this->_tableId, $cols,$conditions);
+        
+        $result = $this->makeAPICall($sql);
+
+        $centers = $this->createCenters($result);
+        print_r($centers);
+        throw new Exception('this function is unfinished');
+    }
+    
     public function getCenters( Connect_CenterRequest $request,
             $limit = 1, $offset = null ) {
         $logPrefix = __CLASS__ . "->" . __FUNCTION__ . ": ";
@@ -121,7 +140,7 @@ class Connect_GoogleFT_CenterTable {
             throw new InvalidArgumentException( 'longitude may not be null' );
         }
         
-        $sql = $this->getSQL( $request, $limit, $offset );
+        $sql = $this->getSelectStatement( $request, $limit, $offset );
 
         /*
          * make the call to the fusion table
@@ -134,7 +153,7 @@ class Connect_GoogleFT_CenterTable {
         return $centers;
     }
 
-    public function getSQL( Connect_CenterRequest $request, 
+    public function getSelectStatement( Connect_CenterRequest $request, 
             $limit = null, $offset = null ) {
         $conditions = "'Pending Confirmation' NOT EQUAL TO 'true' AND";
 
@@ -173,7 +192,7 @@ class Connect_GoogleFT_CenterTable {
 
         $cols = $this->_columnNames;
         
-        $sql = SQLBuilder::select($this->_tableId, $cols, $conditions, $orderBy);
+        $sql = Connect_GoogleFT_SQLBuilder::select($this->_tableId, $cols, $conditions, $orderBy);
         
         return $sql;
     }

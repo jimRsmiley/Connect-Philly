@@ -1,13 +1,16 @@
 <?php
 
 /**
- * Description of CenterRequestApplication
+ * Handles requests for centers
  *
  * @author Jim Smiley twitter:@jimRsmiley
  */
 class Connect_SMS_CenterRequestApplication extends Connect_SMS_Application {
     
     /**
+     * process the request json and sms a response, also returns the response
+     * message or null on failure
+     * 
      * @param type $json
      * @return boolean true on successful sms response, false on sms api send
      * failure
@@ -49,11 +52,13 @@ class Connect_SMS_CenterRequestApplication extends Connect_SMS_Application {
                             $notifyUrl
                     );
             
+            
+            // success!
+            
             // notify system addresses of sms interaction
-            $options = Connect_Mail_MessageBuilder::smsSuccess($inboundMessage, $response->getMessage() );
+            $options = Connect_Mail_MessageBuilder::smsSuccess($inboundMessage, $responseMessage );
             $smsResult = self::sendEmail( $options, $logger, $loggerPrefix );
             $logger->debug( "resendSMS result '$smsResult'" );
-            return true;
         }
         
         /*
@@ -65,7 +70,7 @@ class Connect_SMS_CenterRequestApplication extends Connect_SMS_Application {
             $responseText = 'attempt to send SMS message to ' 
                     . $inboundMessage->getSenderAddress() . ' failed';
             $logger->warn( $responseText );
-            $logger->err(  $exW->getMessage() );
+            $logger->err(  $ex->getMessage() );
 
             $mailOptions = array();
             $mailOptions['subject'] = 'SMS Error';
@@ -74,14 +79,15 @@ class Connect_SMS_CenterRequestApplication extends Connect_SMS_Application {
                         $config->mail->systemMessages->toAddresses->toArray();
 
             Connect_Mail::send( $mailOptions );
-            
-            return false;
         }
+        
+        return $responseMessage;
     }
     
     /**
      * process the inboundMessage and return the message to send back to the user.
      * store the message for future use if required
+     * 
      * @param Connect_SMS_InboundMessage $inboundMessage
      * @return string the message 
      */

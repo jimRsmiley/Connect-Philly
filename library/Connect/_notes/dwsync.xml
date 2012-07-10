@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<dwsync>
+<file name="CenterJsonBuilder.php" server="connect.jimsmiley.us/connect.jimsmiley.us/" local="129844924139736338" remote="129854078220000000" />
+<file name="CenterRequest.php" server="connect.jimsmiley.us/connect.jimsmiley.us/" local="129816571036828090" remote="129854078230000000" />
+<file name="CenterRequestApplication.php" server="connect.jimsmiley.us/connect.jimsmiley.us/" local="129816927765911331" remote="129854078230000000" />
+<file name="ComputerCenter.php" server="connect.jimsmiley.us/connect.jimsmiley.us/" local="129852297551840918" remote="129854078260000000" />
+<file name="ComputerCenterMapper.php" server="connect.jimsmiley.us/connect.jimsmiley.us/" local="129852168216069081" remote="129854078270000000" />
+<file name="Exception.php" server="connect.jimsmiley.us/connect.jimsmiley.us/" local="129761230318085321" remote="129854078270000000" />
+<file name="FileLogger.php" server="connect.jimsmiley.us/connect.jimsmiley.us/" local="129760347353342631" remote="129854078280000000" />
+<file name="FoundCenter.php" server="connect.jimsmiley.us/connect.jimsmiley.us/" local="129811290406843967" remote="129854078280000000" />
+<file name="GISDistanceCalculator.php" server="connect.jimsmiley.us/connect.jimsmiley.us/" local="129810574841625978" remote="129854078280000000" />
+<file name="GISGeocoder.php" server="connect.jimsmiley.us/connect.jimsmiley.us/" local="129755555750000000" remote="129854078290000000" />
+<file name="Mail.php" server="connect.jimsmiley.us/connect.jimsmiley.us/" local="129854046997283165" remote="129854078340000000" />
+<file name="PhillyGeocoder.php" server="connect.jimsmiley.us/connect.jimsmiley.us/" local="129814153484190090" remote="129854078350000000" />
+</dwsync>

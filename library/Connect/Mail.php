@@ -35,7 +35,6 @@ class Connect_Mail  {
         self::sendMessage( $options );
     }
     
-    //protected static function sendMessage($smtpHost, $senderName, $senderAddress, $smtpPass, $send_to_email, $subject, $msg ) {
     protected static function sendMessage( $options ) {
         
         if( empty( $options['message'] ) ) {

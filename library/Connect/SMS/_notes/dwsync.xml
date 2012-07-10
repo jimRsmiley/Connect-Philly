@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<dwsync>
+<file name="Application.php" server="connect.jimsmiley.us/connect.jimsmiley.us/" local="129802713226184216" remote="129854078360000000" />
+<file name="CallbackApplicaton.php" server="connect.jimsmiley.us/connect.jimsmiley.us/" local="129800268245564105" remote="129854078370000000" />
+<file name="CenterRequestApplication.php" server="connect.jimsmiley.us/connect.jimsmiley.us/" local="129854043723244923" remote="129854078370000000" />
+<file name="DeliveryInfoNotification.php" server="connect.jimsmiley.us/connect.jimsmiley.us/" local="129781982212888752" remote="129854078380000000" />
+<file name="InboundMessage.php" server="connect.jimsmiley.us/connect.jimsmiley.us/" local="129781118530529459" remote="129854078380000000" />
+<file name="InboundMessageType.php" server="connect.jimsmiley.us/connect.jimsmiley.us/" local="129803061522027585" remote="129854078380000000" />
+<file name="PastMessageFile.php" server="connect.jimsmiley.us/connect.jimsmiley.us/" local="129809738599429149" remote="129854078390000000" />
+<file name="RequestBuilder.php" server="connect.jimsmiley.us/connect.jimsmiley.us/" local="129818340290391315" remote="129854078490000000" />
+<file name="Response.php" server="connect.jimsmiley.us/connect.jimsmiley.us/" local="129805171242297025" remote="129854078540000000" />
+<file name="ResponseBuilder.php" server="connect.jimsmiley.us/connect.jimsmiley.us/" local="129818418164705471" remote="129854078540000000" />
+<file name="SMSified.php" server="connect.jimsmiley.us/connect.jimsmiley.us/" local="129782014419859022" remote="129854078550000000" />
+<file name="SMSifiedResult.php" server="connect.jimsmiley.us/connect.jimsmiley.us/" local="129780187343939446" remote="129854078550000000" />
+</dwsync>

@@ -22,7 +22,7 @@ $ftclient = new FTClientLogin($token);
 // If the request is a post, insert the data into the table
 if($_SERVER['REQUEST_METHOD'] == 'POST') {
   // Insert form data into table
-  $insertresults = $ftclient->query(SQLBuilder::insert($tableid, 
+  $insertresults = $ftclient->query(Connect_GoogleFT_SQLBuilder::insert($tableid, 
     array('Name'=> $_POST['name'],
     'Value' => $_POST['result'],
     'Location' => $_POST['location'],
@@ -105,7 +105,7 @@ function initialize() {
 <p>
 <?php
 // Show the data from table
-$table_data = $ftclient->query(SQLBuilder::select($tableid));
+$table_data = $ftclient->query(Connect_GoogleFT_SQLBuilder::select($tableid));
 $table_data = explode("\n", $table_data);
 for($i = 0; $i < count($table_data); $i++) {
   echo $table_data[$i] . '<br />';

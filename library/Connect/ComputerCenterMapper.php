@@ -19,11 +19,6 @@ class Connect_ComputerCenterMapper {
         }
     }
     
-    public static function insert( Connect_ComputerCenter $center ) {
-        
-    }
-    
-    
     /**
      * @todo this function is a mess
      * @param Connect_CenterRequest $request
@@ -137,6 +132,14 @@ class Connect_ComputerCenterMapper {
                 $config->google->user,
                 $config->google->pass
               );
+    }
+    
+    /**
+     * get the table id of the fusion table
+     * @return string
+     */
+    public static function getFusionTableId() {
+        return $config->gmap->FusionTableId;
     }
 }
 

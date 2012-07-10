@@ -40,8 +40,8 @@ if(empty($_GET["oauth_token"])) {
 				                           $user_id,
 				                           $extra_options);
 				            
-	echo $oauthClient->query(SQLBuilder::showTables());		
-	echo $oauthClient->query(SQLBuilder::select(197026));	            
+	echo $oauthClient->query(Connect_GoogleFT_SQLBuilder::showTables());		
+	echo $oauthClient->query(Connect_GoogleFT_SQLBuilder::select(197026));	            
   echo FileUploader::uploadCSV($oauthClient, "testcsv.csv");
   
 }
