@@ -1,3 +1,4 @@
+robots.txt
 connect.ini
 phpdocs
 logs/*
@@ -5,4 +6,6 @@ dat/*
 .zfproject.xml
 nbproject
 scripts
+public/test
+.htaccess
 tests
