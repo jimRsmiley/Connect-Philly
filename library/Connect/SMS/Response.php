@@ -5,7 +5,7 @@
  *
  * @author Jim Smiley twitter:@jimRsmiley
  */
-class Connect_SMS_Response {
+abstract class Connect_SMS_Response {
     
     protected $_centerRequest;
     

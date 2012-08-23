@@ -20,16 +20,6 @@ class Connect_ComputerCenter
     protected $_type; // alias for type
     protected $_centerPhoneNumber;
     
-    /*
-    protected $_monday;
-    protected $_tuesday;
-    protected $_wednesday;
-    protected $_thursday;
-    protected $_friday;
-    protected $_saturday;
-    protected $_sunday;
-    */
-    
     protected $_mondayHoursDescription;
     protected $_mondayHoursOpen;
     protected $_mondayHoursClose;
@@ -638,7 +628,7 @@ class Connect_ComputerCenter
      * @para m string $day the day in string format, Monday, Tuesday......
      * @return mixed a two element array with 0 as openTime string and 1 as closedTime string
      */
-    protected function getOpenCloseTimes( $day ) {
+    public function getOpenCloseTimes( $day ) {
         
         $openTime = '';
         $closeTime = '';
@@ -704,6 +694,10 @@ class Connect_ComputerCenter
         return $array;
     }
     
+    public function isOpen( $timestamp ) {
+        return $this->getOpenStatus($timestamp)
+                        == Connect_ComputerCenter_OpenStatus::$OPEN;
+    }
     /**
      *returns an associative array 
      */

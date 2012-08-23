@@ -3,6 +3,9 @@
 /**
  * Description of CenterRequest
  *
+ * A note regarding testTime and getTestIsOpen.  Both of these are necessary
+ * because you may not want to retreive centers that are currently open, just
+ * merely determine if those centers are currently open or closed.
  * @author JimS
  */
 class Connect_CenterRequest {

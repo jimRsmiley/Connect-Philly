@@ -1,4 +1,4 @@
-<?php
+ <?php
 
 /**
  * A computer center that was created as a result of a search in the database
@@ -7,40 +7,62 @@
  */
 class Connect_FoundCenter extends Connect_ComputerCenter {
     
-    protected $_request;
-    protected $_distanceFromRequest;
-    protected $_openStatus;
-    
-    public function __construct( $options, Connect_CenterRequest $request,
-            $timestamp = null ) {
+    // the center submitted to search
+    protected $_searchPosition;
+    protected $_distanceFromPosition;
+     
+    public function getDistanceFromPosition() {
         
-        parent::__construct( $options );
-        $this->_request = $request;
-        $this->_distanceFromRequest 
-                = self::roundDistance( $this->getDistanceFromRequest(), 1 );
-        
-        if( $timestamp  == null ) {
-            $timestamp = time();
-        }
-        
-        $this->_openStatus = $this->getOpenStatus($timestamp);
-    }
-    
-    public function getDistanceFromRequest() {
-        return Connect_GISDistanceCalculator::distance(
+        if( $this->_distanceFromPosition == null ) {
+            $this->_distanceFromPosition = Connect_GISDistanceCalculator::distance(
                 $this->getLatitude(), $this->getLongitude(),
-                $this->_request->getLatitude(), $this->_request->getLongitude()
+                $this->_searchPosition->getLat(), $this->_searchPosition->getLng()
                  );
+        }
+        return $this->_distanceFromPosition;
     }
     
-    public static function roundDistance( $number, $precision ) {
-        return round( $number, $precision );
-    }
+	public function getSearchPosition(){
+		return $this->_searchPosition;
+	}
+
+	public function setSearchPosition( Connect_Position $searchPosition){
+		$this->_searchPosition = $searchPosition;
+        $this->_distanceFromPosition = self::getDistanceFromPosition();
+	}
     
-    public function toArray() {
-        $options = parent::toArray();
+    public function setOptions(array $options)
+    {
+        $methods = get_class_methods($this);
         
-        $options['openStatus'] = $this->_openStatus;
+        foreach ($options as $key => $value) {
+            $method = 'set' . ucfirst($key);
+            $method = str_replace( ' ', '', $method );
+            
+            // see if this is a valid method
+            if (in_array($method, $methods)) {
+                $this->$method($value);
+            }
+        }
+        return $this;
+    }
+    
+    public function getOptions() {
+        
+        //$variables = array_keys( get_class_vars( get_class(new Connect_ComputerCenter) ) );
+        $variables = array_keys( get_class_vars( __CLASS__ ) );
+        $options = array();
+        foreach( $variables as $variableName ) {
+            
+            // strip leading underscore
+            $variableName = substr( $variableName, 1 );
+            
+            $method = 'get' . ucfirst( $variableName );
+            
+            if( method_exists( $this, $method ) ) {
+                $options[$variableName] = $this->$method();
+            }
+        }
         
         return $options;
     }

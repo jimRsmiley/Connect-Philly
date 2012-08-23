@@ -13,7 +13,7 @@ class Connect_GoogleFT_CenterTable {
 
     protected $_ftclient;
     protected $_tableId;
-    protected $_locationColumn = 'Longitude';
+    protected static $_locationColumn = 'Longitude';
     protected $_columnNames;
     
     public function __construct($tableId, $user, $pass) {
@@ -47,28 +47,16 @@ class Connect_GoogleFT_CenterTable {
 
         $data['Timestamp'] = $timestamp;
 
-        if (!$data) {
-            Connect_FileLogger::err(
-                        self::logPrefixString(__FUNCTION__) . ': data is null'
-                    );
-            return false;
+        if( empty( $data ) ) {
+            throw new InvalidArgumentException( 'data may not be null' );
         }
 
         $ftclient = $this->_ftclient;
-
-        $result = $ftclient->query(
-                Connect_GoogleFT_SQLBuilder::insert($this->_tableId, $data)
-        );
+        $sql = Connect_GoogleFT_SQLBuilder::insert($this->_tableId, $data);
+        $result = $ftclient->query( $sql );              
 
         if (preg_match('/Error 400/', $result)) {
-            Connect_FileLogger::err(self::logPrefixString(__FUNCTION__) . ': error 400');
-
-            Connect_FileLogger::err(self::logPrefixString(__FUNCTION__) . ': sql => ' .
-                    Connect_GoogleFT_SQLBuilder::insert($this->_tableId, $data));
-
-            Connect_FileLogger::err(self::logPrefixString(__FUNCTION__) . Zend_Debug::dump($data, false));
-
-            return false;
+            throw new Exception($result);
         }
 
         return true;
@@ -110,50 +98,8 @@ class Connect_GoogleFT_CenterTable {
         return $names;
     }
     
-    public function getCenterByRowid( $rowid ) {
-        
-        if( empty( $rowid ) ) {
-            throw new InvalidArgumentException('rowid may not be null' );
-        }
-        
-        
-        $cols = null;
-        $conditions = "ROWID = '$rowid'";
-        $sql = Connect_GoogleFT_SQLBuilder
-                            ::select($this->_tableId, $cols,$conditions);
-        
-        $result = $this->makeAPICall($sql);
-
-        $centers = $this->createCenters($result);
-        print_r($centers);
-        throw new Exception('this function is unfinished');
-    }
-    
-    public function getCenters( Connect_CenterRequest $request,
-            $limit = 1, $offset = null ) {
-        $logPrefix = __CLASS__ . "->" . __FUNCTION__ . ": ";
-
-        if( $request->getLatitude() ==  null ) {
-            throw new InvalidArgumentException( 'latitude may not be null' );
-        }
-        if( $request->getLongitude() == null ) {
-            throw new InvalidArgumentException( 'longitude may not be null' );
-        }
-        
-        $sql = $this->getSelectStatement( $request, $limit, $offset );
-
-        /*
-         * make the call to the fusion table
-         */
-        $result = $this->makeAPICall($sql);
-
-        $centers = self::createCenters( $result, $request );
-        Connect_FileLogger::info($logPrefix . "returning " . count($centers) . " centers");
-
-        return $centers;
-    }
-
-    public function getSelectStatement( Connect_CenterRequest $request, 
+    public function getSelectStatement( Connect_Position $position, 
+            $searchOptions = null,
             $limit = null, $offset = null ) {
         $conditions = "'Pending Confirmation' NOT EQUAL TO 'true' AND";
 
@@ -169,14 +115,14 @@ class Connect_GoogleFT_CenterTable {
 
         $orderBy = sprintf(
                 " ORDER BY ST_DISTANCE('%s', LATLNG( %s, %s ) )%s%s", 
-                $this->_locationColumn, 
-                $request->getLatitude(), $request->getLongitude(), 
+                self::$_locationColumn, 
+                $position->getLat(), $position->getLng(), 
                 $offsetStr, $limitStr);
 
         
 
-        if ($request->getSearchOptions() != null) {
-            foreach ($request->getSearchOptions() as $term) {
+        if ($searchOptions != null) {
+            foreach ($searchOptions as $term) {
                 
                 if( strtolower($term) != 'open' ) {
                     $conditions .= ' '
@@ -192,7 +138,8 @@ class Connect_GoogleFT_CenterTable {
 
         $cols = $this->_columnNames;
         
-        $sql = Connect_GoogleFT_SQLBuilder::select($this->_tableId, $cols, $conditions, $orderBy);
+        $sql = Connect_GoogleFT_SQLBuilder::select(
+                        $this->_tableId, $cols, $conditions, $orderBy);
         
         return $sql;
     }
@@ -200,8 +147,8 @@ class Connect_GoogleFT_CenterTable {
     /**
      * handles the fusion table api calls and checks the result for errors
      * 
-     * @param type $sql
-     * @return type 
+     * @param string $sql
+     * @return string a csv containing the computer centers 
      */
     public function makeAPICall($sql) {
         $logPrefix = __CLASS__ . "->" . __FUNCTION__ . ": ";
@@ -211,46 +158,15 @@ class Connect_GoogleFT_CenterTable {
         if (preg_match("/(Parse error near.*)\n/", $csv, $match)) {
             $msg = $sql . "\n" . $match[1];
 
-            throw new FusionTableException($msg);
+            throw new CenterTableException($msg);
         }
         else if( preg_match("/<H2>Error \d*<\/H2>/", $csv ) ) {
-            throw new FusionTableException($csv);
+            throw new CenterTableException($csv);
         }
 
         return $csv;
     }
 
-    /**
-     * given the fusion table result, breaks up the csv format into computer center objects
-     * @param type $csv the result of a sql query from the fusion table API
-     * @return array containing the computer centers
-     */
-    protected static function createCenters(
-                                    $csv, Connect_CenterRequest $request) {
-
-        // break it up by lines, each line is a computer center
-        $lines = explode("\n", $csv);
-
-        // the first line is the column names
-        $colNames = explode(',', $lines[0]);
-
-        $computerCenters = array();
-
-        for ($i = 1; $i < count($lines); $i++) {
-            // probably at the end of the result
-            if (preg_match("/^\s*$/", $lines[$i])) {
-                break;
-            }
-
-            $centerArray = str_getcsv($lines[$i]);
-            $assoc_array = array_combine($colNames, $centerArray);
-
-            $foundCenter = new Connect_FoundCenter($assoc_array, $request );
-            array_push( $computerCenters, $foundCenter );
-        }
-
-        return $computerCenters;
-    }
 
     protected function toAssocArray($result) {
 
@@ -275,19 +191,8 @@ class Connect_GoogleFT_CenterTable {
 
         return $retArray;
     }
-
-    /**
-     * returns a string of the class name and function name for log strings
-     * @return string
-     */
-    protected static function logPrefixString($functionName) {
-        return __CLASS__ . '->' . $functionName;
-    }
-
 }
 
-class FusionTableException extends Zend_Exception {
-    
-}
+
 
 ?>

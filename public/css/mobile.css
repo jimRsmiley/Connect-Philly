@@ -1,0 +1,37 @@
+Happ<!--
+html { 
+    background-color: #333; 
+    overflow: auto; 
+}
+
+@media only screen and (min-width: 600px){
+	.ui-page {
+		width: 600px !important;
+		margin: 0 auto !important;
+		position: relative !important;
+		border-right: 5px #666 outset !important;
+		border-left: 5px #666 outset !important;
+	}
+}
+-->
+
+h1 img {
+    width: 100%;
+}
+input#searchaddress { 
+    text-align: center;
+} 
+
+.hoursDescription {
+    font-weight: .9em;
+}
+
+.dayAbbrev {
+    font-weight: bold;
+    font-weight: 1.1em;
+}
+
+.time-select-desc {
+    text-align: right; 
+    padding: 5px 10px 0 0;
+}

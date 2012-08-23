@@ -2,7 +2,6 @@
 
 class ErrorController extends Zend_Controller_Action
 {
-
     public function errorAction()
     {
         $errors = $this->_getParam('error_handler');
@@ -34,20 +33,35 @@ class ErrorController extends Zend_Controller_Action
             $log->crit($this->view->message .': ' . $errors->exception);
         }
 
-        if( class_exists( 'JS_FileLogger' ) ) {
+        if( class_exists( 'Connect_FileLogger' ) ) {
             Connect_FileLogger::crit( $this->view->message .': ' . $errors->exception );
         }
 		
-        if( class_exists( 'JS_Connect_Mail' ) ) {
-            Connect_Mail::sendErrorMessage( $this->view->message .': ' . $errors->exception );
-        }
+        $mailOptions = Connect_Mail_MessageBuilder::errorMessageOptions(
+                $this->view->message .': ' . $errors->exception);
+        Connect_Mail::send($mailOptions);
         
         // conditionally display exceptions
         if ($this->getInvokeArg('displayExceptions') == true) {
             $this->view->exception = $errors->exception;
         }
+
+        $controller = Zend_Controller_Front::getInstance();
+        $request = $controller->getRequest();
+        $module = $request->getModuleName();
+        $layout = Zend_Layout::getMvcInstance();
+
+        // check module and automatically set layout
+        $layoutsDir = $layout->getLayoutPath();
         
-        $this->view->request   = $errors->request;
+        // check if module layout exists else use default
+        if(file_exists($layoutsDir . DIRECTORY_SEPARATOR . $module . ".phtml")) {
+            $layout->setLayout($module);
+        } else {
+            $layout->setLayout("subsite");
+        }
+        
+        $this->view->request = $errors->request;
     }
 
     public function getLog()
@@ -61,7 +75,5 @@ class ErrorController extends Zend_Controller_Action
         $log = $bootstrap->getResource('Log');
         return $log;
     }
-
-
 }
 

@@ -56,7 +56,7 @@ class Connect_SMS_CenterRequestApplication extends Connect_SMS_Application {
             // success!
             
             // notify system addresses of sms interaction
-            $options = Connect_Mail_MessageBuilder::smsSuccess($inboundMessage, $responseMessage );
+            $options = Connect_Mail_MessageBuilder::smsSuccessOptions($inboundMessage, $responseMessage );
             $smsResult = self::sendEmail( $options, $logger, $loggerPrefix );
             $logger->debug( "resendSMS result '$smsResult'" );
         }

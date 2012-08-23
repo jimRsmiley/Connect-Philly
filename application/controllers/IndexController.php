@@ -2,17 +2,37 @@
 
 class IndexController extends Zend_Controller_Action
 {
-    public function init()
-    {
-        /* Initialize action controller here */
-    }
 
+    /**
+     * we'll avoid all views and layouts and just forward 
+     *
+     */
     public function indexAction()
     {
-        $form = new Application_Form_MapSearchForm();
-        //$form->setAction(null);
-        $form->setMethod('GET');
-        $this->view->searchForm = $form;
+        $config = Zend_Registry::get('configuration');
+        $forwardUrl = $config->forwardUrl;
+        
+        $r = Zend_Controller_Action_HelperBroker::getStaticHelper('redirector');
+        $r->gotoUrl($forwardUrl)->redirectAndExit();
+
     }
+
+    public function resultsAction()
+    {
+        // action body
+    }
+
+    /**
+     * created just for testing the ErrorController
+     * @throws Exception
+     */
+    public function errorAction() {
+        throw new Exception("this is a test action created just for testing the ErrorController" );
+    }
+
 }
+
+
+
+
 

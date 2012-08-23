@@ -1,14 +1,15 @@
 <?php
 /**
- * Description of MessageBuilder
- * @todo decide if this class should exist
+ * Easily build the options for the Connect_Mail class to send mail.
+ * Configures, subject, message and the to addresses, also may build the message
+ * 
  * @author jsmiley
  */
 class Connect_Mail_MessageBuilder {
     
     protected static $msgFooter = 'This is an automatically generated message from the Connect Philly System.  Do not reply to this message';
 
-    public static function resendSmsAttempt($attemptNum, $senderAddress, $originalMessage) {
+    public static function resendSmsAttemptOptions($attemptNum, $senderAddress, $originalMessage) {
         $msg = "sender: " . $senderAddress
                 . " original message: '" . $originalMessage . "'\n"
                 . "\n"
@@ -19,12 +20,12 @@ class Connect_Mail_MessageBuilder {
         $options = array();
         $options['subject'] = 'SMS Send Faulure';
         $options['message'] = $msg;
-        $options['toAddress'] = self::getSystemToAddresses();
+        $options['toAddress'] = Connect_Mail::getSystemToAddresses();
         
         return $options;
     }
     
-    public static function smsSuccess( Connect_SMS_InboundMessage $inboundMessage, $smsText ) {
+    public static function smsSuccessOptions( Connect_SMS_InboundMessage $inboundMessage, $smsText ) {
         $msg = "sender: " . $inboundMessage->getSenderAddress() 
                 . " requested: '" . $inboundMessage->getMessage() . "'\n"
                 . "\n"
@@ -36,12 +37,12 @@ class Connect_Mail_MessageBuilder {
         $options = array();
         $options['subject'] = 'SMS from ' . $inboundMessage->getSenderAddress();
         $options['message'] = $msg;
-        $options['toAddress'] = self::getSystemToAddresses();
+        $options['toAddress'] = Connect_Mail::getSystemToAddresses();
         
         return $options;
     }
     
-    public static function addCenter(Connect_ComputerCenter $center ) {
+    public static function addCenterOptions(Connect_ComputerCenter $center ) {
 
         $msg = '';
         foreach( $center->getOptions() as $key => $value ) {
@@ -52,20 +53,23 @@ class Connect_Mail_MessageBuilder {
         $options = array();
         $options['message']     = $msg;
         $options['subject']     = '\''.$center->getLocationTitle() . '\' added to system';
-        $options['toAddress']   = self::getAddCenterAddresses();
+        $options['toAddress']   = Connect_Mail::getAddCenterAddresses();
         
         return $options;
     }
     
-    protected static function getSystemToAddresses() {
-        $config = Zend_Registry::get('configuration');
-        return $config->mail->systemMessages->toAddresses->toArray();
+    public static function errorMessageOptions( $message ) {
+        $config = Zend_Registry::get( 'configuration' );
+        
+        $options['subject']         = "Connect Philly Error";
+        $options['toAddress']       = Connect_Mail::getSystemToAddresses();
+        $options['message']         = $message;
+        
+        return $options;
     }
     
-    protected static function getAddCenterAddresses() {
-        $config = Zend_Registry::get('configuration');
-        return $config->mail->addCenter->toAddresses->toArray();
-    }
+
+
 }
 
 ?>

@@ -60,7 +60,7 @@ class Connect_SMS_CallbackApplicaton extends Connect_SMS_Application {
             
             
             // notify systems admin via email
-            $options = Connect_Mail_MessageBuilder::resendSmsAttempt(
+            $options = Connect_Mail_MessageBuilder::resendSmsAttemptOptions(
                             $attemptNum-1, 
                             $toAddress, 
                             $notification->getMessage() 

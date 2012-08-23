@@ -1,0 +1,75 @@
+<!DOCTYPE html> 
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+<!--
+    JQuery and JQuery Mobile
+-->
+<link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.css" />
+<script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+<script src="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.js"></script>
+<script type="text/javascript" src="/js/connect.js"></script>
+<script type="text/javascript" src="/js/pure/pure.js"></script>
+<title>Testing Connect Philly</title>
+
+<script type="text/javascript">
+
+$('#hours-page').live( "pageshow", function() {
+   console.log( "we're live" ); 
+    $("#sundayHours").detach();
+    $("#sundayHoursLabel").detach();
+});
+
+</script>
+
+</head>
+
+<body>
+
+
+<div data-role="page" id="hours-page" data-url="#hours-page">
+
+    <div data-role="content">
+        
+        <!-- javascript fill for the days options -->
+            <fieldset data-role="controlgroup" data-type="horizontal">
+               
+                <div id="asdfDays">
+                    
+                    <label id="sundayHoursLabel">Sun</label>
+                    <input id="sundayHours" type="checkbox" value="Sunday" />
+                    
+                    <label for="mondayHours">Mon</label>
+                    <input id="mondayHours" type="checkbox" value="Monday" />
+                    
+                    <label for="tuesdayHours">Tue</label>
+                    <input id="tuesdayHours" type="checkbox" value="Tuesday" />
+                    
+                    <label for="wednesdayHours">Wed</label>
+                    <input id="wednesdayHours" type="checkbox" value="Wednesday" />
+                    
+                    <label for="thursdayHours">Thu</label>
+                    <input id="thursdayHours" type="checkbox" value="Thursday" />
+                    
+                    <label for="fridayHours">Fri</label>
+                    <input id="fridayHours" type="checkbox" value="Friday" />
+                    
+                    <label for="saturdayHours">Sat</label>
+                    <input id="saturdayHours" type="checkbox" value="Saturday" />
+                    
+                   
+                </div>
+            </fieldset>
+
+    </div>
+</div>
+
+    
+</body>
+<script type="text/javascript">
+
+//$('#asdfDays').html("asfdasfd");
+</script>
+</html>

@@ -14,7 +14,6 @@ class Connect_Mail  {
     protected static $mailerName = 'Connect Philly Mailer';
     protected static $smtpHost = 'smtp.gmail.com';
     
-    
     public static function send( $options ) {
 
         if( empty( $options['message'] ) ) {
@@ -36,14 +35,6 @@ class Connect_Mail  {
     }
     
     protected static function sendMessage( $options ) {
-        
-        if( empty( $options['message'] ) ) {
-            throw new Connect_Exception( 'message option must be defined' );
-        } else if( empty( $options['subject'] ) ) {
-            throw new Connect_Exception('subject option must be defined' );
-        } else if( empty( $options['toAddress'] ) ) {
-            throw new Connect_Exception('toAddress option must be defined' );
-        }
         
         $smtpConf = array(
                         'auth' => 'login',
@@ -68,6 +59,17 @@ class Connect_Mail  {
             $errMsg = "error sending mail with content '".$options['message'].".'; reason: ".$e->getMessage();
             Connect_FileLogger::error( $errMsg );
         }
+    }
+    
+    public static function getSystemToAddresses() {
+        $config = Zend_Registry::get('configuration');
+        return $config->mail->systemMessages->toAddresses->toArray();
+    }
+    
+    
+    public static function getAddCenterAddresses() {
+        $config = Zend_Registry::get('configuration');
+        return $config->mail->addCenter->toAddresses->toArray();
     }
 }
 ?>

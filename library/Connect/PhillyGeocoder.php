@@ -18,9 +18,7 @@ class Connect_PhillyGeocoder extends Connect_GISGeocoder {
     public static function geocode($address) {
         
         if( empty( $address ) ) {
-            Connect_FileLogger::warn( __CLASS__ . '::' . __FUNCTION__ . ' -> '
-                    . 'address is empty' );
-            return null;
+            throw new InvalidArgumentException('address may not be empty');
         }
         
         $address = $address . ', Philadelphia, PA';
@@ -29,21 +27,22 @@ class Connect_PhillyGeocoder extends Connect_GISGeocoder {
         
         // reset the result if it returns the general philly location,
         // we want to return null
-        if( $position['lat'] == self::$PHL_LAT 
-                && $position['lng'] == self::$PHL_LNG ) {
-            
-            Connect_FileLogger::debug( __CLASS__ . '::' . __FUNCTION__ . ' -> '
-                    . 'returned general Philadelphia coordinates' );
-                    
+        if( self::isPhillyCoords($position) ) {
             $position = null;
-        }
-        else {
-            $position['latitude'] = $position['lat'];
-            $position['longitude'] = $position['lng'];
         }
         
         return $position;
         
+    }
+    
+    /**
+     *tests if the position supplied is the philadelphia coordinates returned
+     * by google, this indicates that the geocoding a particular address failed
+     * @param Connect_Position $position the position to test
+     */
+    public static function isPhillyCoords( Connect_Position $position ) {
+        return $position->getLat() == self::$PHL_LAT 
+                && $position->getLng() == self::$PHL_LNG;
     }
 }
 

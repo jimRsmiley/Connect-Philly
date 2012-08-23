@@ -46,6 +46,13 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
         }
     }
     
+    protected function _initPlugins()
+    {
+        // Access plugin
+        $front = Zend_Controller_Front::getInstance(); 
+        $front->registerPlugin(new Application_Plugin_Module());
+    }
+ 
     protected function getLogger( $filename ) {
         $logger = new Zend_Log();
         $logger->setTimestampFormat("ymd H:i");

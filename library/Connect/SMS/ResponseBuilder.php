@@ -7,7 +7,8 @@
  */
 class Connect_SMS_ResponseBuilder {
     
-    public static function create( Connect_CenterRequest $request, $limit = 1, $nextCenterOffset = null ) {
+    public static function create( Connect_CenterRequest $request, 
+                                $numCenters = 1, $nextCenterOffset = null ) {
         
         if( empty($request) ) {
             throw new IllegalArgumentException( __METHOD__ 
@@ -27,16 +28,34 @@ class Connect_SMS_ResponseBuilder {
             return new Connect_SMS_Response_BadCenterRequest($request);
         }
         
-        $request->setLatitude( $position['lat'] );
-        $request->setLongitude( $position['lng'] );
+        $request->setLatitude( $position->getLat() );
+        $request->setLongitude( $position->getLng() );
         
         // null or 1+ next center
         $nextCenterOffset = self::getNextCenterNum($request);
         $foundCenter = null;
         
         try {
-            // pass it to the regular response builder
-            $foundCenters = Connect_ComputerCenterMapper::getCenters( $request, $limit, $nextCenterOffset );
+            $centerMapper = new Connect_ComputerCenterMapper();
+            
+            if( $request->getTestIsOpen() ) {
+                $foundCenters = $centerMapper->getOpenCenters( 
+                                    $position, 
+                                    $request->getSearchOptions(),
+                                    $request->getTestTime(),
+                                    $numCenters, 
+                                    $nextCenterOffset 
+                                );
+            }
+            else {
+                // pass it to the regular response builder
+                $foundCenters = $centerMapper->getCenters( 
+                        $position, 
+                        $request->getSearchOptions(), 
+                        $numCenters, 
+                        $nextCenterOffset 
+                    );
+            }
             
             if( count($foundCenters) > 0 ) {
                 $foundCenter = $foundCenters[0];
@@ -63,6 +82,10 @@ class Connect_SMS_ResponseBuilder {
         }
     }
     
+    public static function getCenter( $position, $options, $nextCenterNum ) {
+        
+    }
+    
     public static function didNextCenterRequestFail( 
             $foundCenter, $nextCenterNum ) 
     {
@@ -79,5 +102,4 @@ class Connect_SMS_ResponseBuilder {
         return null;
     }
 }
-
 ?>

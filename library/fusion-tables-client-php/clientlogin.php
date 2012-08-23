@@ -12,6 +12,7 @@ class ClientLogin {
       if( empty( $password ) ) {
           throw new Exception( 'password cannot be empty' );
       }
+      
     $clientlogin_curl = curl_init();
     curl_setopt($clientlogin_curl,CURLOPT_URL,'https://www.google.com/accounts/ClientLogin');
     curl_setopt($clientlogin_curl, CURLOPT_POST, true); 

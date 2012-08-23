@@ -1,0 +1,45 @@
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script type="text/javascript" src="js/connect.js"></script>
+        
+        
+        <script type="text/javascript">
+if( typeof( rpNameSpace ) == "undefined" ) rpNameSpace = {};
+
+rpNameSpace = function()
+{
+    this.length = 613;
+}
+rpNameSpace.prototype.getLength = function()
+{
+    return this.length * 2;
+}
+rpNameSpace.prototype.setLength = function()
+{
+    this.length = 5;
+}
+
+
+
+    var x = new rpNameSpace()
+
+    console.log( x.getLength() );
+    x.setLength();
+    console.log( x.getLength() );
+    
+    var addCenter = new AddCenter();
+    addCenter.test();
+    
+        </script>
+    </head>
+    <body>
+        <div>TODO write content</div>
+    </body>
+</html>

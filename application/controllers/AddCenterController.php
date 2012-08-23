@@ -59,10 +59,10 @@ class AddCenterController extends Zend_Controller_Action {
                     . $computerCenter->getAddress1() );
         }
         
-        $mapper  = new Application_Model_CenterDirectoryMapper();
+        $mapper  = new Connect_ComputerCenterMapper();
         $mapper->save($computerCenter);
         
-        $mailOptions = Connect_Mail_MessageBuilder::addCenter( $computerCenter );
+        $mailOptions = Connect_Mail_MessageBuilder::addCenterOptions( $computerCenter );
         Connect_Mail::send( $mailOptions );
         
         // Render information in a verification page
