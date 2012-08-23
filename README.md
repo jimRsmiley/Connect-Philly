@@ -7,6 +7,8 @@ and receive the closest computer center.
 
 Computer centers may be added to the database on Connect Philly's website. <http://connect.technicallyphilly.com>
 
+The in-progress mobile website is at <http://connect.technicallyphilly.com/m>
+
 Implementation
 ==============
 
@@ -19,8 +21,6 @@ located [here](https://www.google.com/fusiontables/DataSource?snapid=S467324OMhp
 
 To Do
 ======
-
-1. create a mobile website
 
 2. do something with the smsified callback functionality.  Right now the system
 just records that an sms delivery seemingly failed.  Although there have been
