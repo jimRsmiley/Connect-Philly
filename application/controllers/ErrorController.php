@@ -37,10 +37,15 @@ class ErrorController extends Zend_Controller_Action
             Connect_FileLogger::crit( $this->view->message .': ' . $errors->exception );
         }
 		
-        $mailOptions = Connect_Mail_MessageBuilder::errorMessageOptions(
-                $this->view->message .': ' . $errors->exception);
-        Connect_Mail::send($mailOptions);
-        
+        /*
+         * email errors
+         */
+        $sendEmails = Zend_Registry::get("configuration")->connect->sendEmails;
+        if( $sendEmails ) {
+            $mailOptions = Connect_Mail_MessageBuilder::errorMessageOptions(
+                    $this->view->message .': ' . $errors->exception);
+            Connect_Mail::send($mailOptions);
+        }        
         // conditionally display exceptions
         if ($this->getInvokeArg('displayExceptions') == true) {
             $this->view->exception = $errors->exception;

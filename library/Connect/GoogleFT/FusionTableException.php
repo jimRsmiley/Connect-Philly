@@ -5,7 +5,7 @@
  *
  * @author Jim Smiley twitter:@jimRsmiley
  */
-class CenterTableException extends Exception {
+class Connect_GoogleFT_FusionTableException extends Exception {
     
     public function __construct($result) {
         

@@ -81,9 +81,6 @@ class Connect_SMS_RequestBuilder {
         
         return $centerRequest;
     }
-
-
-    
     
     /**
      * searches the message for valid search terms

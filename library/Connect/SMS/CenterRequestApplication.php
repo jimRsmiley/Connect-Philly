@@ -54,6 +54,7 @@ class Connect_SMS_CenterRequestApplication extends Connect_SMS_Application {
             
             
             // success!
+
             
             // notify system addresses of sms interaction
             $options = Connect_Mail_MessageBuilder::smsSuccessOptions($inboundMessage, $responseMessage );
@@ -101,9 +102,30 @@ class Connect_SMS_CenterRequestApplication extends Connect_SMS_Application {
         // this is a first address request, store the message for later
         if( Connect_SMS_PastMessageFile::shouldStoreRequest($request, $response) ) {
             Connect_SMS_PastMessageFile::store($inboundMessage);
+            self::storeUsageData($request, $inboundMessage->getSenderAddress() );
+            
+
         }
         
         return $response->getMessage();
+    }
+    
+    public static function storeUsageData(Connect_CenterRequest $request, $senderAddress ) {
+        
+        if( !preg_match( "/2677389559/", $senderAddress ) 
+                && APPLICATION_ENV == 'production' ) 
+        {
+            $properties = array( 
+                'timestamp' => Connect_AbstractMapper::getFusionTableTimestamp( time() ),
+                'centerRequestText' => $request->getAddress1(),
+                'latitude'          => $request->getLatitude(),
+                'longitude'         => $request->getLongitude()
+            );
+            $usageData = new Connect_UsageData($properties);
+
+            $mapper = new Connect_UsageDataMapper();
+            $mapper->save( $usageData );
+        }
     }
     
     /**

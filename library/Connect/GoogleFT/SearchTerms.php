@@ -22,6 +22,16 @@ class Connect_GoogleFT_SearchTerms {
     public static function getSearchTerms() {
         return array_keys( self::$_terms );
     }
+    
+    public static function isSearchTerm( $word ) {
+        
+        foreach( self::getSearchTerms() as $term ) {
+            if( preg_match( "/$word/", $term ) ) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
 
 ?>

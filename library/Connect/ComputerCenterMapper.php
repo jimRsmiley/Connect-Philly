@@ -124,14 +124,14 @@ class Connect_ComputerCenterMapper {
     }
     
     public function getCenters( Connect_Position $position, 
-            $searchOptions = null,
+            $searchTerms = null,
             $numCenters = 1, 
             $offset = null ) {
         $logPrefix = __CLASS__ . "->" . __FUNCTION__ . ": ";
 
         $this->validatePosition($position);
         
-        $sql = $this->table->getSelectStatement( $position, $searchOptions, $numCenters, $offset );
+        $sql = $this->table->getSelectStatement( $position, $searchTerms, $numCenters, $offset );
 
         /*
          * make the call to the fusion table
@@ -208,7 +208,7 @@ class Connect_ComputerCenterMapper {
     protected static function getFusionTable() {
         $config = Zend_Registry::get('configuration');
         
-        return new Connect_GoogleFT_CenterTable( 
+        return new Connect_GoogleFT_ComputerCenterTable( 
                 $config->gmap->FusionTableId, 
                 $config->google->user,
                 $config->google->pass
