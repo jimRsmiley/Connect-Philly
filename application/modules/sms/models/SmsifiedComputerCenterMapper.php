@@ -12,6 +12,10 @@ class Sms_Model_SmsifiedComputerCenterMapper {
                                 $nextCenterNum = 0, 
                                 $testTime = null ) 
     {
+        if( empty( $address ) ) {
+            throw new InvalidArgumentException( "address may not be null" );
+        }
+        
         $position = Connect_PhillyGeocoder::geocode($address);
         
         if( $position == null ) {
@@ -47,15 +51,23 @@ class Sms_Model_SmsifiedComputerCenterMapper {
         }
     }
     
-    public function nextCenter( $nextCenterNum, $requesterAddress ) {
+    public function nextCenter( $nextCenterNum, Connect_TelephoneNumber $requesterAddress ) {
 
-        $message = Connect_SMS_PastMessageFile::getLastEntry( 
+        if( empty( $requesterAddress ) ) {
+            throw new InvalidArgumentException("requester address may not be null" );
+        }
+        
+        $message = Connect_SMS_PastMessageFile::getLastMessage( 
                                         $requesterAddress );
+        
+        if( $message == null ) {
+            return null;
+        }
         
         $inboundMessage = new Connect_SMS_InboundMessage();
         $inboundMessage->setMessage($message);
         
-        $request = new Connect_Controller_Request_Smsified();
+        $request = new Sms_Model_Request_Smsified();
         $request->setInboundMessage($inboundMessage);
         
         $center = $this->getCenter($request->getAddress(),

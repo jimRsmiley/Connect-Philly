@@ -4,7 +4,6 @@ include_once "constants.php";
 
 class ClientLogin {
   public static function getAuthToken($username, $password) {
-      
       if( empty($username) ) {
           throw new Exception( 'username cannot be empty' );
       }

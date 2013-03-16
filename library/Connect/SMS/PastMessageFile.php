@@ -6,7 +6,8 @@
  */
 class Connect_SMS_PastMessageFile {
     
-    protected static $_file = "/../dat/past-successful-geocoded-messages.txt";
+    // set the file via root of APPLICATION_PATH
+    protected static $_file = "past-successful-geocoded-messages.txt";
     
     /**
      * stores an smsified inbound message in the format |[date]|[sender address]|[message]
@@ -17,7 +18,7 @@ class Connect_SMS_PastMessageFile {
         $logPrefix = __CLASS__ . "->" . __FUNCTION__ . ": ";
         $maxTries = 10;
         
-        $file = APPLICATION_PATH . self::$_file;
+        $file = self::getFile();
         
         $line = self::getTimestamp()
                 . "|". $inboundMessage->getSenderAddress()
@@ -49,8 +50,8 @@ class Connect_SMS_PastMessageFile {
         fclose($fp);
     }
     
-    public static function getLastEntry( $senderAddress ) {
-        $file = APPLICATION_PATH . self::$_file;
+    public static function getLastMessage( $senderAddress ) {
+        $file = self::getFile();
         
         if( !file_exists( $file ) ) {
             return false;
@@ -69,8 +70,7 @@ class Connect_SMS_PastMessageFile {
             $possibleSenderAddress = $elements[1];
             $message = $elements[2];
             
-            if( $possibleSenderAddress == $senderAddress ) {
-                Connect_FileLogger::debug( __CLASS__ . "->" . __FUNCTION__ . ': returning last message ' .$message );
+            if( self::phoneNumbersEqual($possibleSenderAddress,$senderAddress) ) {
                 return $message;
             }
         }
@@ -93,11 +93,25 @@ class Connect_SMS_PastMessageFile {
     
     public static function delete() {
         
-        $file = $this->_file;
+        $file = self::getFile();
         
         if( file_exists( $file ) ) {
             unlink( $file );
         }
+    }
+    
+    public static function getFile() {
+        return APPLICATION_PATH 
+                . DIRECTORY_SEPARATOR
+                . ".."
+                . DIRECTORY_SEPARATOR 
+                . "dat" 
+                . DIRECTORY_SEPARATOR
+                . self::$_file;
+    }
+    
+    public static function phoneNumbersEqual( $number1, $number2 ) {
+        return ( strcmp( $number1, $number2) == 0 );
     }
 }
 

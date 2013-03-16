@@ -18,6 +18,7 @@ class Connect_GoogleFT_FusionTable {
 
     public function __construct($tableId, $user, $pass) {
 
+        $this->_tableId = $tableId;
         $this->logger = Zend_Registry::get('Log');
 
         if ( empty($tableId) ) {
@@ -27,11 +28,16 @@ class Connect_GoogleFT_FusionTable {
         $token = ClientLogin::getAuthToken($user, $pass);
         $ftclient = new FTClientLogin($token);
 
-        $this->_tableId = $tableId;
+        
         $this->_ftclient = $ftclient;
         
         // need to get the column names so we can 
         //$this->_columnNames = $this->getColumnNames();
+    }
+    
+    public function login() {
+        $token = ClientLogin::getAuthToken($user, $pass);
+        $ftclient = new FTClientLogin($token);
     }
     
     /**

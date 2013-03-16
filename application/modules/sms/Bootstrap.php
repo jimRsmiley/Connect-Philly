@@ -7,19 +7,47 @@
  */
 class Sms_Bootstrap extends Zend_Application_Module_Bootstrap
 {
-    public function _initPlugins() {
-        $front = Zend_Controller_Front::getInstance();
-        $front->registerPlugin( new Connect_Controller_Plugin_EmailNotificationOfResponse() );
+    protected function _initAutoloader()
+    {
+        $moduleLoader = new Zend_Application_Module_Autoloader(  
+                                array(  
+                                    'namespace' => 'Sms',  
+                                    'basePath' => APPLICATION_PATH . '/modules/sms'  
+                                )
+                            );  
+  
+        // adding model resources to the autoloader  
+        $moduleLoader->addResourceTypes(  
+                array(  
+                    'plugins' => array(  
+                        'path' => 'controllers/plugins',  
+                        'namespace' => 'Controller_Plugin'  
+                    )  
+                )  
+            );  
+  
+        return $moduleLoader;  
     }
+    
     public function _initRegisterRequest() {
         
         $front = Zend_Controller_Front::getInstance();
 
         $front->setRequest( 
-                new Connect_Controller_Request_Smsified() );
+                new Sms_Model_Request_Smsified() );
         
         $front->setResponse( 
-                new Connect_Controller_Response_Smsified() );
+                new Sms_Model_Response_Smsified() );
+    }
+    
+    protected function _initPlugins()
+    {
+        $bootstrap = $this->getApplication();
+        $bootstrap->bootstrap('frontcontroller');
+        $front = $bootstrap->getResource('frontcontroller');
+
+       // $front->registerPlugin(new Sms_Controller_Plugin_Logger());
+        //$front->registerPlugin(new Sms_Controller_Plugin_Mailer());
     }
 }
 ?>

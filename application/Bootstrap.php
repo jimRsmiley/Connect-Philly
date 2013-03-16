@@ -20,7 +20,8 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
         
         $configuration = new Zend_Config_Ini( 
                 APPLICATION_PATH . '/configs/connect.ini', 
-                APPLICATION_ENV );
+                APPLICATION_ENV,
+                array( "allowModifications" => true ));
         
         Zend_Registry::set('configuration',$configuration );
     }
