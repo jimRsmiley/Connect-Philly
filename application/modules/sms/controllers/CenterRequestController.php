@@ -26,21 +26,17 @@ class Sms_CenterRequestController extends Zend_Controller_Action
             }
             break;
         } // end switch
-            
-        // after switch statement, controller will dispatch
-    
     } // end nearestCenterAction
     
+
     public function processNextCenterRequest() {
         $request = $this->getRequest();
+        $nextCenterNum = $request->getMessage();
+        $senderAddress = $request->getInboundMessage()->getSenderAddress();
         
         $mapper = new Sms_Model_SmsifiedComputerCenterMapper();
-
-        $center = $mapper->nextCenter( 
-                    $request->getMessage(), 
-                    $request->getInboundMessage()->getSenderAddress() 
-            );
-
+        $center = $mapper->nextCenter( $nextCenterNum, $senderAddress);
+        
         if( $center == null ) {
             $this->_helper->viewRenderer->setRender( 'no-next-center' );
         }
@@ -49,8 +45,13 @@ class Sms_CenterRequestController extends Zend_Controller_Action
             $this->view->nextCenterNum = $request->getMessage()+1;
             $this->view->testTime = $request->getTestTime();
             $this->_helper->viewRenderer->setRender( 'nearest-center' );
-            }
+            
+        }
     }
+    
+    /**
+     * this function stores the inboundMessage for later use on success
+     */
     public function processAddressRequest() {
         $request = $this->getRequest();
         
@@ -73,6 +74,8 @@ class Sms_CenterRequestController extends Zend_Controller_Action
             $this->view->nextCenterNum = 1;
             $this->view->testTime = $request->getTestTime();
             $this->_helper->viewRenderer->setRender( 'nearest-center' );
+            
+            Connect_SMS_PastMessageFile::store( $request->getInboundMessage() );
         }
         catch( Sms_Model_Exception_BadAddress $ex ) {
             $this->view->message = $this->getRequest()->getMessage();
@@ -104,10 +107,6 @@ class Sms_CenterRequestController extends Zend_Controller_Action
         // if it failed and there was only one attempt to deliver
         else if( $notification->getDeliveryStatus() !=  'DeliveredToNetwork'
                 && $attemptNum == '1' ) {
-            
-            $logger->info( $loggerPrefix.' previous sms failed.' );
-            
-            $logger->info( $loggerPrefix.print_r( $notification, true ) );
             
             /*
              * @todo do something here if you actually want to start resending SMS messages

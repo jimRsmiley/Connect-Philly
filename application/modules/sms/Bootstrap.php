@@ -29,11 +29,13 @@ class Sms_Bootstrap extends Zend_Application_Module_Bootstrap
         return $moduleLoader;  
     }
     
-    public function _initRegisterRequest() {
+    public function _initRequestResponseObjects() {
+        $bootstrap = $this->getApplication();
+        $bootstrap->bootstrap('frontcontroller');
+        $front = $bootstrap->getResource('frontcontroller');
         
-        $front = Zend_Controller_Front::getInstance();
-
-        $front->setRequest( 
+            $front->setRequest( 
+                    
                 new Sms_Model_Request_Smsified() );
         
         $front->setResponse( 
@@ -45,9 +47,11 @@ class Sms_Bootstrap extends Zend_Application_Module_Bootstrap
         $bootstrap = $this->getApplication();
         $bootstrap->bootstrap('frontcontroller');
         $front = $bootstrap->getResource('frontcontroller');
-
-       // $front->registerPlugin(new Sms_Controller_Plugin_Logger());
-        //$front->registerPlugin(new Sms_Controller_Plugin_Mailer());
+        
+        $front->registerPlugin(
+                new Sms_Controller_Plugin_LogCenterRequestInteraction());
+        
+        //$front->registerPlugin( new Sms_Controller_Plugin_StoreUsageData() );
     }
 }
 ?>

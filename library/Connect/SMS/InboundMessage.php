@@ -18,7 +18,12 @@ class Connect_SMS_InboundMessage {
 
         if( !empty( $json ) ) {
             $this->json = $json;
-            $notification = json_decode($json);
+            $notification = json_decode($json);;
+            
+            if( !array_key_exists('inboundSMSMessageNotification', $notification ) ) {
+                throw new InvalidArgumentException('expecting array key inboundSMSMessageNotification in json' );
+            }
+            
             $this->timeStamp = $notification->inboundSMSMessageNotification->inboundSMSMessage->dateTime;
             $this->destinationAddress = new Connect_TelephoneNumber($notification->inboundSMSMessageNotification->inboundSMSMessage->destinationAddress );
             $this->message = $notification->inboundSMSMessageNotification->inboundSMSMessage->message;

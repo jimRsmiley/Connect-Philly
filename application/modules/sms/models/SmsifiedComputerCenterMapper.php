@@ -1,11 +1,14 @@
 <?php
 
 /**
- * Description of SmsifiedComputerCenterMapper
+ * handle the data provided by the CenterRequestController and return valid
+ * responses
  *
  * @author Jim Smiley twitter:@jimRsmiley
  */
 class Sms_Model_SmsifiedComputerCenterMapper {
+    
+    protected $lastAddressRequest = null;
     
     public function getCenter(  $address, 
                                 $searchTerms = null, 
@@ -51,19 +54,24 @@ class Sms_Model_SmsifiedComputerCenterMapper {
         }
     }
     
-    public function nextCenter( $nextCenterNum, Connect_TelephoneNumber $requesterAddress ) {
+    public function nextCenter( $nextCenterNum, 
+                            Connect_TelephoneNumber $requesterAddress ) {
 
-        if( empty( $requesterAddress ) ) {
+        if( !is_numeric($nextCenterNum) ) {
+            throw new InvalidArgumentException("nextCenterNum must be numeric");
+        }
+        else if( empty( $requesterAddress ) ) {
             throw new InvalidArgumentException("requester address may not be null" );
         }
         
         $message = Connect_SMS_PastMessageFile::getLastMessage( 
                                         $requesterAddress );
         
+
         if( $message == null ) {
+            print "no previous message exists";
             return null;
         }
-        
         $inboundMessage = new Connect_SMS_InboundMessage();
         $inboundMessage->setMessage($message);
         

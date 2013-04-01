@@ -25,6 +25,15 @@ class Connect_TelephoneNumber {
         preg_match( "/\d+/", $string, $matches );
         return $matches[0];
     }
+    
+    public function equals( Connect_TelephoneNumber $number ) {
+        
+        if( $number->digits == $this->digits ) {
+            return true;
+        }
+        
+        return false;
+    }
 }
 
 ?>

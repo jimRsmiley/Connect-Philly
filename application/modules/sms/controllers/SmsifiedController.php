@@ -6,10 +6,6 @@ class Sms_SmsifiedController extends Zend_Controller_Action
     {
         
     }
-    
-    public  function captureInboundMessageAction() {
-        Connect_FileLogger::info("captureInboundMessage triggered");
-    }
 
     public function createInboundMessageAction() {
         
