@@ -50,8 +50,6 @@ class Sms_Bootstrap extends Zend_Application_Module_Bootstrap
         
         $front->registerPlugin(
                 new Sms_Controller_Plugin_LogCenterRequestInteraction());
-        
-        //$front->registerPlugin( new Sms_Controller_Plugin_StoreUsageData() );
     }
 }
 ?>

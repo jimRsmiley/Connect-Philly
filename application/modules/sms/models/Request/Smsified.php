@@ -10,7 +10,7 @@ class Sms_Model_Request_Smsified
     
     protected $inboundMessage = null;    
     protected $messageType = null;
-    protected $address = null;
+    protected $userAddress = null;
     protected $time = null;
     
 
@@ -45,13 +45,17 @@ class Sms_Model_Request_Smsified
         return $this->messageType;
     }
     
-    public function getAddress() {
-        $message = $this->getMessage();
-        $message = self::scrubMessage($message, 'open');
-        $searchTerms = self::getSearchTerms( $message );
-        $address = self::scrubOfSearchTerms($message);
+    public function getUserAddress() {
         
-        return $address;
+        if( $this->userAddress == null ) {
+            $message = $this->getMessage();
+            $message = self::scrubMessage($message, 'open');
+            $searchTerms = self::getSearchTerms( $message );
+            $this->setUserAddress( new Connect_UserAddress(
+                    array( 'address' => self::scrubOfSearchTerms($message) ) ) );
+        }
+        
+        return $this->userAddress;
     }
     
     /**
@@ -156,6 +160,14 @@ class Sms_Model_Request_Smsified
         $message = trim( preg_replace( "/\s+/", " ", $message ) );
         
         return $message;
+    }
+    
+    public function setUserAddress( Connect_UserAddress $userAddress ) {
+        
+        if( empty( $userAddress ) ) {
+            throw new InvalidArgumentException("userAddress may not be null");
+        }
+        $this->userAddress = $userAddress;
     }
 
 }

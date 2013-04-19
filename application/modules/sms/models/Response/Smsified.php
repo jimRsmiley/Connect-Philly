@@ -32,11 +32,13 @@ class Sms_Model_Response_Smsified
             }
             
             try {
-                self::sendSms(
+                $resourceJson = self::sendSms(
                         $request->getInboundMessage()->getDestinationAddress(),
                         $request->getInboundMessage()->getSenderAddress(), 
                         $msg
                         );
+                
+                Connect_FileLogger::info("smsified send result resource:" . $resourceJson );
                 
                 $options = $this->smsSuccessOptions(
                         $request->getInboundMessage(),
@@ -77,6 +79,8 @@ class Sms_Model_Response_Smsified
                                     $message,
                                     $notifyUrl 
                 );
+        
+        return $resourceReferenceJson;
     }
     
     public function getSmsException() {

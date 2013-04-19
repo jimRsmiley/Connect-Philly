@@ -29,6 +29,9 @@ class Sms_CenterRequestController extends Zend_Controller_Action
     } // end nearestCenterAction
     
 
+    /**
+     * process number messages for next center requests
+     */
     public function processNextCenterRequest() {
         $request = $this->getRequest();
         $nextCenterNum = $request->getMessage();
@@ -50,7 +53,11 @@ class Sms_CenterRequestController extends Zend_Controller_Action
     }
     
     /**
-     * this function stores the inboundMessage for later use on success
+     * process address requests
+     * 
+     * Notes: 
+     *     - this function stores the inboundMessage for later use on success
+     *     - logs the interaction in another google fusion table
      */
     public function processAddressRequest() {
         $request = $this->getRequest();
@@ -64,18 +71,23 @@ class Sms_CenterRequestController extends Zend_Controller_Action
         
         try {
             $center = $mapper->getCenter( 
-                        $request->getAddress(), 
+                        $request->getUserAddress(), 
                         $request->getSearchTerms(),
                         $nextCenterNum = 0,
                         $testTime
                 );
 
+            // making it here means success
             $this->view->center = $center;
             $this->view->nextCenterNum = 1;
             $this->view->testTime = $request->getTestTime();
             $this->_helper->viewRenderer->setRender( 'nearest-center' );
             
+            // store the address for later
             Connect_SMS_PastMessageFile::store( $request->getInboundMessage() );
+            
+            // and log the interaction in the mapped user table
+            $this->storeUsageData( $this->getRequest() );
         }
         catch( Sms_Model_Exception_BadAddress $ex ) {
             $this->view->message = $this->getRequest()->getMessage();
@@ -138,6 +150,42 @@ class Sms_CenterRequestController extends Zend_Controller_Action
             self::sendEmail( $options, $logger, $loggerPrefix );
         }
         return true;
+    }
+    
+    public function storeUsageData(Sms_Model_Request_Smsified $request) {
+        
+        $senderAddress = $request->getInboundMessage()->getSenderAddress();
+        
+        /*
+         * if the user number is on the whitelist and this is the production server
+         * don't store it
+         */
+        if( Sms_Model_PhoneNumberWhitelist::exists($senderAddress) 
+                && APPLICATION_ENV == 'production' ) 
+        {
+            return;
+        }
+        $userAddress = $this->getRequest()->getUserAddress();
+        $lat = $userAddress->getLatitude();
+        $lng = $userAddress->getLongitude();
+        
+        if( empty( $lat ) ) {
+            throw new InvalidArguementException("user address latitude may not be null");
+        }
+        if( empty( $lng ) ) {
+            throw new InvalidArgumentException("user address longitude may not be null");
+        }
+        
+        $properties = array( 
+            'timestamp' => Connect_AbstractMapper::getFusionTableTimestamp( time() ),
+            'centerRequestText' => $userAddress->getAddress(),
+            'latitude'          => $lat,
+            'longitude'         => $lng
+        );
+        $usageData = new Connect_UsageData($properties);
+
+        $mapper = new Connect_UsageDataMapper();
+        $mapper->save( $usageData );
     }
 }
 

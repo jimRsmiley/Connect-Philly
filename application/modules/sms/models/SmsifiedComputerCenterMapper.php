@@ -4,31 +4,34 @@
  * handle the data provided by the CenterRequestController and return valid
  * responses
  *
+ * given a userAddress, will populate that object with the lat/lng
+ * 
  * @author Jim Smiley twitter:@jimRsmiley
  */
-class Sms_Model_SmsifiedComputerCenterMapper {
+class Sms_Model_SmsifiedComputerCenterMapper extends Connect_ComputerCenterMapper {
     
     protected $lastAddressRequest = null;
     
-    public function getCenter(  $address, 
+    public function getCenter(  Connect_UserAddress $userAddress, 
                                 $searchTerms = null, 
                                 $nextCenterNum = 0, 
                                 $testTime = null ) 
     {
-        if( empty( $address ) ) {
+        if( empty( $userAddress ) ) {
             throw new InvalidArgumentException( "address may not be null" );
         }
         
-        $position = Connect_PhillyGeocoder::geocode($address);
+        $position = Connect_PhillyGeocoder::geocode($userAddress->getAddress());
         
         if( $position == null ) {
             throw new Sms_Model_Exception_BadAddress();
         }
         
-        $centerMapper = new Connect_ComputerCenterMapper();
-
+        $userAddress->setLatitude($position->getLat());
+        $userAddress->setLongitude($position->getLng());
+        
         if( !empty( $testTime ) ) {
-            $foundCenters = $centerMapper->getOpenCenters( 
+            $foundCenters = $this->getOpenCenters( 
                                 $position, 
                                 $searchTerms,
                                 $testTime,
@@ -38,7 +41,7 @@ class Sms_Model_SmsifiedComputerCenterMapper {
         }
         else {
             // pass it to the regular response builder
-            $foundCenters = $centerMapper->getCenters( 
+            $foundCenters = $this->getCenters( 
                     $position, 
                     $searchTerms, 
                     $numCenters = 1, 
@@ -54,8 +57,7 @@ class Sms_Model_SmsifiedComputerCenterMapper {
         }
     }
     
-    public function nextCenter( $nextCenterNum, 
-                            Connect_TelephoneNumber $requesterAddress ) {
+    public function nextCenter( $nextCenterNum, $requesterAddress ) {
 
         if( !is_numeric($nextCenterNum) ) {
             throw new InvalidArgumentException("nextCenterNum must be numeric");
@@ -69,7 +71,6 @@ class Sms_Model_SmsifiedComputerCenterMapper {
         
 
         if( $message == null ) {
-            print "no previous message exists";
             return null;
         }
         $inboundMessage = new Connect_SMS_InboundMessage();
@@ -78,7 +79,7 @@ class Sms_Model_SmsifiedComputerCenterMapper {
         $request = new Sms_Model_Request_Smsified();
         $request->setInboundMessage($inboundMessage);
         
-        $center = $this->getCenter($request->getAddress(),
+        $center = $this->getCenter($request->getUserAddress(),
                                 $request->getSearchTerms(),
                                 $nextCenterNum);
         

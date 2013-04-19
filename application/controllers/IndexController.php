@@ -7,12 +7,11 @@ class IndexController extends Zend_Controller_Action
      */
     public function indexAction()
     {
-        //$config = Zend_Registry::get('configuration');
-        //$forwardUrl = $config->forwardUrl;
+        $config = Zend_Registry::get('configuration');
+        $forwardUrl = $config->forwardUrl;
         
-        //$r = Zend_Controller_Action_HelperBroker::getStaticHelper('redirector');
-        //$r->gotoUrl($forwardUrl)->redirectAndExit();
-
+        $r = Zend_Controller_Action_HelperBroker::getStaticHelper('redirector');
+        $r->gotoUrl($forwardUrl)->redirectAndExit();
     }
 
     /**

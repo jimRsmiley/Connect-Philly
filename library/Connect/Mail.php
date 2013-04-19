@@ -31,10 +31,10 @@ class Connect_Mail  {
         $options['smtpHost']        = self::$smtpHost;
         $options['senderName']      = self::$mailerName;
         
-        self::sendMessage( $options );
+        self::smtpCall( $options );
     }
     
-    protected static function sendMessage( $options ) {
+    protected static function smtpCall( $options ) {
         
         $smtpConf = array(
                         'auth' => 'login',
@@ -53,6 +53,16 @@ class Connect_Mail  {
             $mail->addTo( $options['toAddress'] );
             $mail->setSubject($options['subject']);
             $mail->setBodyText($options['message']);
+            
+            if( true ) {
+                Connect_FileLogger::info( "sending mail" );
+                Connect_FileLogger::info( "senderAddress: " . $options['senderAddress'] );
+                Connect_FileLogger::info( "senderName: " . $options['senderName'] );
+                Connect_FileLogger::info( "toAddress: " . $options['toAddress'] );
+                Connect_FileLogger::info( "subject: " . $options['subject'] );
+                Connect_FileLogger::info( "message: " . $options['message'] );
+            }
+            
             $mail->send($transport);
         }
         catch( Zend_Mail_Protocol_Exception $e ) {
