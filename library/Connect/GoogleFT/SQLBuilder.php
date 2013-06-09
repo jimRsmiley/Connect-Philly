@@ -101,7 +101,9 @@ class Connect_GoogleFT_SQLBuilder {
 
     $cols = "'" . implode("','", array_keys($col_values)) . "'";
     
-    return "INSERT INTO $table_id ($cols) VALUES ($stringValues)";
+    $sql = "INSERT INTO $table_id ($cols) VALUES ($stringValues)";
+
+    return $sql;
   }
 }
 

@@ -27,11 +27,11 @@ class Connect_GoogleFT_ComputerCenterTable extends Connect_GoogleFT_FusionTable 
             throw new InvalidArgumentException( 'data may not be null' );
         }
 
-        $ftclient = $this->_ftclient;
+        $ftclient = $this->fusionTableService;
         $sql = Connect_GoogleFT_SQLBuilder::insert($this->_tableId, $data);
-        $result = $ftclient->query( $sql );              
+        $result = $ftclient->query->sql( $sql );              
 
-        if (preg_match('/Error 400/', $result)) {
+        if (!is_array($result) && preg_match('/Error 400/', $result)) {
             throw new Exception($result);
         }
 

@@ -8,7 +8,8 @@
  * 
  * @author Jim Smiley twitter:@jimRsmiley
  */
-class Sms_Model_SmsifiedComputerCenterMapper extends Connect_ComputerCenterMapper {
+class Sms_Model_SmsifiedComputerCenterMapper 
+    extends Connect_ComputerCenterMapper {
     
     protected $lastAddressRequest = null;
     

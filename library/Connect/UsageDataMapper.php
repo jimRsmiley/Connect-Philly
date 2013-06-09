@@ -25,11 +25,13 @@ class Connect_UsageDataMapper extends Connect_AbstractMapper {
         {
             $config = Zend_Registry::get('configuration');
 
-            $this->table = new Connect_GoogleFT_UsageDataTable( 
-                    $config->gmap->usageData->ftId, 
-                    $config->google->user,
-                    $config->google->pass
-                  );
+            $this->table = new Connect_GoogleFT_UsageDataTable(
+                array(
+                    'tableId'   => $config->gmap->usageData->ftId, 
+                    'clientId'  => $config->google->clientLogin->clientId,
+                    'emailAddress'  => $config->google->clientLogin->emailAddress,
+                    'privateKeyFile'    => $config->google->clientLogin->privateKeyFile
+                  ));
         }
 
         return $this->table;

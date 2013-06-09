@@ -63,11 +63,21 @@ class Connect_Mail  {
                 Connect_FileLogger::info( "message: " . $options['message'] );
             }
             
-            $mail->send($transport);
+            
+            try {
+                $mail->send($transport);
+            }
+            catch( Exception $e ) {
+                $errMsg = "error sending mail: '".$e->getMessage();
+                Connect_FileLogger::error( $errMsg );
+                return false;
+            }
+            return true;
         }
         catch( Zend_Mail_Protocol_Exception $e ) {
             $errMsg = "error sending mail with content '".$options['message'].".'; reason: ".$e->getMessage();
             Connect_FileLogger::error( $errMsg );
+            return false;
         }
     }
     

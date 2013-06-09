@@ -1,7 +1,8 @@
 <?php
 
-require_once('fusion-tables-client-php/clientlogin.php');
-require_once('fusion-tables-client-php/file.php');
+//require_once('fusion-tables-client-php/clientlogin.php');
+require_once('google-api-php-client/src/Google_Client.php');
+require_once('google-api-php-client/src/contrib/Google_FusiontablesService.php');
 
 // @todo figure out how to get 3rd party apps in the zend autoloader
 /**
@@ -11,34 +12,54 @@ require_once('fusion-tables-client-php/file.php');
  */
 class Connect_GoogleFT_FusionTable {
     
-    protected $_ftclient;
+    protected $fusionTableService;
     protected $_tableId;
     protected $_columnInfo;
 
 
-    public function __construct($tableId, $user, $pass) {
+    public function __construct( $options ) {
 
-        $this->_tableId = $tableId;
-        $this->logger = Zend_Registry::get('Log');
-
-        if ( empty($tableId) ) {
+        if ( !array_key_exists( 'tableId', $options ) || empty( $options['tableId'] ) ) {
             throw new ZendException("tableId must be defined");
         }
-
-        $token = ClientLogin::getAuthToken($user, $pass);
-        $ftclient = new FTClientLogin($token);
-
         
-        $this->_ftclient = $ftclient;
+        $this->_tableId = $options['tableId'];
+        $clientId       = $options['clientId'];
+        $emailAddress   = $options['emailAddress'];
+        $privateKeyFile = $options['privateKeyFile'];
         
-        // need to get the column names so we can 
-        //$this->_columnNames = $this->getColumnNames();
+        if( !file_exists($privateKeyFile) )
+            throw new \InvalidArguementException( "privateKeyFile does not exist" );
+        
+        $this->logger = Zend_Registry::get('Log');
+
+        if( !isset($apiConfig) ) {
+            include('google-api-php-client/src/config.php');
+        }
+        
+        if( !defined( 'EMAIL_ADDRESS' ) )
+            define( 'EMAIL_ADDRESS', '846924947206-2lc7bguo7la691sk5uk0842kofitp6ft@developer.gserviceaccount.com' );
+        if( !defined('CLIENT_ID') )
+            define( 'CLIENT_ID', '846924947206-2lc7bguo7la691sk5uk0842kofitp6ft.apps.googleusercontent.com' );
+
+        $client = new Google_Client();
+        $client->setApplicationName('Connect Philly');
+
+        // set assertion credentials
+        $client->setAssertionCredentials(
+          new Google_AssertionCredentials(
+            $emailAddress, // email you added to GA
+            array('https://www.googleapis.com/auth/fusiontables'),
+            file_get_contents($privateKeyFile)  // keyfile you downloaded
+
+        ));
+
+        $client->setClientId($clientId);
+        $client->setAccessType('online'); // default: offline
+        
+        $this->fusionTableService = new Google_FusiontablesService($client);
     }
-    
-    public function login() {
-        $token = ClientLogin::getAuthToken($user, $pass);
-        $ftclient = new FTClientLogin($token);
-    }
+
     
     /**
      *
@@ -54,15 +75,23 @@ class Connect_GoogleFT_FusionTable {
     public function getColumnInfo() {
 
         if( $this->_columnInfo == null ) {
-            
-        
-            $ftclient = $this->_ftclient;
 
             $result =
-                    $ftclient->query(Connect_GoogleFT_SQLBuilder::describeTable($this->_tableId));
-        
-            $this->_columnInfo = $this->toAssocArray($result);
+                    $this->fusionTableService->query
+                        ->sql(
+                                Connect_GoogleFT_SQLBuilder
+                                    ::describeTable($this->_tableId)
+                    );
             
+            $this->_columnInfo = array();
+            foreach( $result['rows'] as $row ) {
+                $arr = array(
+                    'column id' => $row[0],
+                    'name'      => $row[1],
+                    'type'      => $row[2]
+                );
+                $this->_columnInfo[] = $arr;
+            }
         }
         
         return $this->_columnInfo;
@@ -92,23 +121,22 @@ class Connect_GoogleFT_FusionTable {
     public function makeAPICall($sql) {
         $logPrefix = __CLASS__ . "->" . __FUNCTION__ . ": ";
         Connect_FileLogger::info($logPrefix . $sql);
-        $csv = $this->_ftclient->query($sql);
+        
+        //print $sql."\n";
+        $result = $this->fusionTableService->query->sql($sql);
 
-        if (preg_match("/(Parse error near.*)\n/", $csv, $match)) {
-            $msg = $sql . "\n" . $match[1];
-
+        if( $result == null )
             throw new Connect_GoogleFT_FusionTableException($msg);
-        }
-        else if( preg_match("/<H2>Error \d*<\/H2>/", $csv ) ) {
-            throw new Connect_GoogleFT_FusionTableException($csv);
-        }
 
-        return $csv;
+        return $result;
     }
 
 
     protected function toAssocArray($result) {
 
+        if( !is_string($result) ) {
+            throw new \InvalidArguementException( "result must be a string" );
+        } 
         $lines = explode("\n", $result);
         $columnNames = explode(',', $lines[0]);
 

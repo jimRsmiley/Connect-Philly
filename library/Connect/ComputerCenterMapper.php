@@ -127,7 +127,6 @@ class Connect_ComputerCenterMapper {
             $searchTerms = null,
             $numCenters = 1, 
             $offset = null ) {
-        $logPrefix = __CLASS__ . "->" . __FUNCTION__ . ": ";
 
         $this->validatePosition($position);
         
@@ -139,8 +138,7 @@ class Connect_ComputerCenterMapper {
         $result = $this->table->makeAPICall($sql);
 
         $centers = self::createCenters( $result );
-        Connect_FileLogger::info($logPrefix . "returning " . count($centers) . " centers");
-
+        
         return $this->createFoundCenters($centers,$position);
     }
     
@@ -177,31 +175,29 @@ class Connect_ComputerCenterMapper {
      * @param type $csv the result of a sql query from the fusion table API
      * @return array containing the computer centers
      */
-    protected static function createCenters($csv) {
+    protected static function createCenters($result) {
 
-        // break it up by lines, each line is a computer center
-        $lines = explode("\n", $csv);
-
-        // the first line is the column names
-        $colNames = explode(',', $lines[0]);
+        $colNames = $result['columns'];
 
         $computerCenters = array();
 
-        for ($i = 1; $i < count($lines); $i++) {
-            // probably at the end of the result
-            if (preg_match("/^\s*$/", $lines[$i])) {
-                break;
+        /*
+         * no rows, means no rows returned in query
+         */
+        if( array_key_exists('rows', $result ) ) {
+            $rows = $result['rows'];
+
+            for ($i = 0; $i < count($rows); $i++) {
+
+                $assoc_array = array_combine($colNames, $rows[$i]);
+
+                array_push( 
+                        $computerCenters, 
+                        new Connect_ComputerCenter($assoc_array) 
+                    );
             }
-
-            $centerArray = str_getcsv($lines[$i]);
-            $assoc_array = array_combine($colNames, $centerArray);
-
-            array_push( 
-                    $computerCenters, 
-                    new Connect_ComputerCenter($assoc_array) 
-                );
         }
-
+        
         return $computerCenters;
     }
     
@@ -209,10 +205,12 @@ class Connect_ComputerCenterMapper {
         $config = Zend_Registry::get('configuration');
         
         return new Connect_GoogleFT_ComputerCenterTable( 
-                $config->gmap->FusionTableId, 
-                $config->google->user,
-                $config->google->pass
-              );
+            array( 
+                'tableId'   => $config->gmap->FusionTableId,
+                'clientId'  => $config->google->clientLogin->clientId,
+                'emailAddress'  => $config->google->clientLogin->emailAddress,
+                'privateKeyFile'    => $config->google->clientLogin->privateKeyFile
+            ));
     }
     
     public function validatePosition($position) {
